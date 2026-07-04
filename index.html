@@ -21,18 +21,18 @@
 
 <!-- ================= ЭКРАН 1: ПОДРУГО-КАПЧА ================= -->
 <section id="screen-1" class="screen active">
-  <div class="card captcha-card">
+    <div class="card captcha-card">
     <p class="eyebrow">Система безопасности</p>
     <h1>Подтвердите статус Besties</h1>
     <p class="subtitle">Сдвиньте кусочек, чтобы собрать фото и доказать, что вы — настоящая лучшая подруга</p>
 
     <div class="captcha-photo-wrap" id="captchaPhotoWrap">
-      <!-- ЗАГЛУШКА: замени на фон с вашим совместным фото -->
-      <div class="placeholder-photo">
+    <!-- ЗАГЛУШКА: замени на фон с вашим совместным фото -->
+        <div class="placeholder-photo">
         📸<span>ЗАГЛУШКА ФОТО<br>(замени на вашу совместную)</span>
-      </div>
-      <div class="puzzle-gap" id="puzzleGap"></div>
-      <div class="puzzle-piece" id="puzzlePiece">🧩</div>
+        </div>
+        <div class="puzzle-gap" id="puzzleGap"></div>
+        <div class="puzzle-piece" id="puzzlePiece">🧩</div>
     </div>
 
     <input type="range" min="0" max="100" value="0" id="captchaSlider" class="captcha-slider">
@@ -41,72 +41,118 @@
     <p id="captchaMessage" class="captcha-message"></p>
 
     <button id="captchaContinueBtn" class="btn hidden" onclick="nextScreen(2)">Войти на сайт ✨</button>
-  </div>
+    </div>
 </section>
 
 <!-- ================= ЭКРАН 2: ЭКЗАМЕН НА ДРУЖБУ ================= -->
 <section id="screen-2" class="screen screen-full">
-  <div class="card card-wide quiz-card">
+    <div class="card card-wide quiz-card">
     <p class="eyebrow">Локальный экзамен</p>
     <h1>Тест на дружбу</h1>
 
     <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-fill" id="progressFill"></div>
     </div>
     <p class="progress-label" id="progressLabel">Просто знакомые</p>
 
     <div id="quizContainer" class="quiz-container"></div>
-  </div>
+    </div>
 </section>
 
 <!-- ================= ЭКРАН 3: СОБЕРИ ВОСПОМИНАНИЕ ================= -->
 <section id="screen-3" class="screen screen-full">
-  <div class="card card-wide puzzle-card">
+    <div class="card card-wide puzzle-card">
     <p class="eyebrow">Финальное испытание</p>
     <h1>Собери воспоминание</h1>
     <p class="subtitle">Перетащи кусочки на свои места</p>
 
     <div class="puzzle-area">
-      <div class="puzzle-board" id="puzzleBoard"></div>
-      <div class="puzzle-pieces" id="puzzlePieces"></div>
+        <div class="puzzle-board" id="puzzleBoard"></div>
+        <div class="puzzle-pieces" id="puzzlePieces"></div>
     </div>
 
     <p id="puzzleMessage" class="captcha-message"></p>
     <button id="puzzleContinueBtn" class="btn hidden" onclick="nextScreen(4)">Получить главную награду 🎁</button>
-  </div>
+    </div>
 </section>
 
-<!-- ================= ЭКРАН 4: ФИНАЛ ================= -->
+<!-- ================= ЭКРАН 4: ЭКЗАМЕН НА ДРУЖБУ ================= -->
 <section id="screen-4" class="screen screen-full">
+    <div class="card card-wide quiz-card">
+    <p class="eyebrow">Локальный экзамен</p>
+    <h1>Тест на дружбу</h1>
 
-  <!-- Фаза А: эпические титры -->
-  <div id="crawlWrap" class="crawl-wrap">
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+
+    <div id="quizContainer" class="quiz-container"></div>
+    </div>
+</section>
+
+<!-- ================= ЭКРАН 5: ЭКЗАМЕН НА ДРУЖБУ ================= -->
+<section id="screen-5" class="screen screen-full">
+    <div class="card card-wide quiz-card">
+    <p class="eyebrow">Локальный экзамен</p>
+    <h1>Тест на дружбу</h1>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+
+    <div id="quizContainer" class="quiz-container"></div>
+    </div>
+</section>
+
+<!-- ================= ЭКРАН 6: ЭКЗАМЕН НА ДРУЖБУ ================= -->
+<section id="screen-6" class="screen screen-full">
+    <div class="card card-wide quiz-card">
+    <p class="eyebrow">Локальный экзамен</p>
+    <h1>Тест на дружбу</h1>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+
+    <div id="quizContainer" class="quiz-container"></div>
+    </div>
+</section>
+
+
+<!-- ================= ЭКРАН: ФИНАЛ ================= -->
+<section id="screen-final" class="screen screen-full">
+
+    <!-- Фаза А: эпические титры -->
+    <div id="crawlWrap" class="crawl-wrap">
     <div class="crawl-fade-top"></div>
     <div class="crawl-perspective">
-      <div class="crawl-text" id="crawlText">
+        <div class="crawl-text" id="crawlText">
         <p class="crawl-title">С ДНЁМ РОЖДЕНИЯ</p>
         <p>Давным-давно, в одном очень далёком городе <em>(замени на ваш город/универ)</em>, встретились две легенды...</p>
         <p>ЗАГЛУШКА: здесь будет краткая шуточная история о том, что вы вместе пережили за этот год — мемы, приключения, ночные созвоны и всё остальное.</p>
         <p>Она прошла капчу. Она сдала экзамен. Она собрала воспоминание по кусочкам.</p>
         <p>Она доказала, что достойна называться Лучшей Подругой.</p>
         <p class="crawl-title">И теперь для неё открывается новый уровень...</p>
-      </div>
+        </div>
     </div>
     <button id="skipCrawlBtn" class="btn btn-ghost skip-btn">Пропустить ⏭</button>
-  </div>
+    </div>
 
-  <!-- Фаза Б: сертификат -->
-  <div id="certificateWrap" class="certificate-wrap hidden">
+    <!-- Фаза Б: сертификат -->
+    <div id="certificateWrap" class="certificate-wrap hidden">
     <p class="eyebrow">Магия активирована</p>
     <h1>С Днём Рождения! 🎉</h1>
     <div class="certificate" id="certificateBtn" tabindex="0" role="button">
-      <!-- ЗАГЛУШКА: замени на картинку сертификата -->
-      <div class="placeholder-photo certificate-placeholder">
+        <!-- ЗАГЛУШКА: замени на картинку сертификата -->
+        <div class="placeholder-photo certificate-placeholder">
         🏆<span>ЗАГЛУШКА<br>Официальный Сертификат<br>Лучшей Подруги</span>
-      </div>
-      <p class="certificate-cta">Нажми на меня, чтобы активировать магию ✨</p>
+        </div>
+        <p class="certificate-cta">Нажми на меня, чтобы активировать магию ✨</p>
     </div>
-  </div>
+    </div>
 
 </section>
 
