@@ -104,8 +104,33 @@
     </div>
 </section>
 
-<!-- ================= ЭКРАН 5: ЭКЗАМЕН НА ДРУЖБУ ================= -->
+<!-- ================= ЭКРАН 5: Кто есть кто================= -->
 <section id="screen-5" class="screen screen-full">
+    <div class="card card-wide people-card">
+    <p class="eyebrow">Проверка круга общения</p>
+    <h1>Кто есть кто</h1>
+    <p class="subtitle">Разбери людей по зонам: наши — в сердечко, все остальные — в мусорку</p>
+
+    <div class="people-zones">
+        <div class="people-zone zone-friend" data-category="friend">
+        <span class="zone-emoji">❤️</span>
+        <span class="zone-label">Наши</span>
+        </div>
+        <div class="people-zone zone-enemy" data-category="enemy">
+        <span class="zone-emoji">🗑️</span>
+        <span class="zone-label">Не наши</span>
+        </div>
+    </div>
+
+    <div class="people-tray" id="peopleTray"></div>
+
+    <p id="peopleMessage" class="captcha-message"></p>
+    <button id="peopleContinueBtn" class="btn hidden" onclick="nextScreen(6)">Дальше →</button>
+    </div>
+</section>
+
+<!-- ================= ЭКРАН 6: ? ================= -->
+<section id="screen-6" class="screen screen-full">
     <div class="card card-wide quiz-card">
     <p class="eyebrow">Локальный экзамен</p>
     <h1>Тест на дружбу</h1>
@@ -118,8 +143,35 @@
     <div id="quizContainer" class="quiz-container"></div>
     </div>
 </section>
+<!-- ================= ЭКРАН 7: ? ================= -->
+<section id="screen-6" class="screen screen-full">
+    <div class="card card-wide quiz-card">
+    <p class="eyebrow">Локальный экзамен</p>
+    <h1>Тест на дружбу</h1>
 
-<!-- ================= ЭКРАН 6: ЭКЗАМЕН НА ДРУЖБУ ================= -->
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+
+    <div id="quizContainer" class="quiz-container"></div>
+    </div>
+</section>
+<!-- ================= ЭКРАН 8: ? ================= -->
+<section id="screen-6" class="screen screen-full">
+    <div class="card card-wide quiz-card">
+    <p class="eyebrow">Локальный экзамен</p>
+    <h1>Тест на дружбу</h1>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+
+    <div id="quizContainer" class="quiz-container"></div>
+    </div>
+</section>
+<!-- ================= ЭКРАН 9: ? ================= -->
 <section id="screen-6" class="screen screen-full">
     <div class="card card-wide quiz-card">
     <p class="eyebrow">Локальный экзамен</p>

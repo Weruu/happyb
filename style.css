@@ -446,11 +446,94 @@ h1 {
 }
 
     /* ==========================================================
-    ЭКРАН 5 — Вопрос по картинке
+    ЭКРАН 5 — кто есть кто
    ========================================================== */
+.people-zones {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    }
+
+.people-zone {
+    flex: 1;
+    min-width: 140px;
+    min-height: 160px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 3px dashed var(--rose-mid);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+.zone-friend { background: #FFEAF2; }
+.zone-enemy  { background: #F3EFEF; }
+
+.people-zone.drag-hover {
+    border-color: var(--rose-deep);
+    background: var(--rose-light);
+    }
+
+.zone-emoji { font-size: 3rem; }
+.zone-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--rose-deep);
+    }
+
+.people-tray {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    min-height: 90px;
+    padding: 10px;
+    }
+
+.person-tile {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: grab;
+    border: 3px solid var(--white);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    flex-shrink: 0;
+    background: var(--rose-main);
+    }
+
+.person-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    }
+
+.person-tile.dragging {
+    cursor: grabbing;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+    transform: scale(1.08);
+    }
+
+.person-tile.placed {
+    width: 60px;
+    height: 60px;
+    cursor: default;
+    }
+
+@media (max-width: 480px) {
+.people-zone { min-height: 130px; }
+.person-tile { width: 64px; height: 64px; }
+    }
 
     /* ==========================================================
-    ЭКРАН 6 — ?
+    ЭКРАН 6 — Вопрос по картинке
    ========================================================== */
 
     /* ==========================================================

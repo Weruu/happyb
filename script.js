@@ -53,6 +53,7 @@ function nextScreen(screenNumber) {
     if (screenNumber === 2) startQuiz();
     if (screenNumber === 3) initPuzzle();
     if (screenNumber === 4) initAlphabet();
+    if (screenNumber === 5) initPeopleSort();
     if (screenNumber === 10) startFinale();
 }
 
@@ -505,7 +506,7 @@ const ALPHABET_IMAGES = {
 
 // ЗАГЛУШКА: свой вопрос и правильный ответ (ответ — маленькими буквами)
 const ALPHABET_QUESTION = "Впиши сюда свой вопрос";
-const ALPHABET_ANSWER = "впиши сюда правильный ответ";
+const ALPHABET_ANSWER = "правильный ответ";
 
 const alphabetDisplayBox = document.getElementById('alphabetDisplayBox');
 const alphabetInput = document.getElementById('alphabetInput');
@@ -579,4 +580,166 @@ function checkAlphabetAnswer() {
     alphabetMessage.textContent = "Не то... попробуй ещё раз 🔤";
     alphabetMessage.className = "captcha-message error";
     }
+}
+
+/* ==========================================================
+    ЭКРАН 5 — КТО ЕСТЬ КТО
+   ========================================================== */
+
+// ЗАГЛУШКА: замени name/img/category под своих 10 человек
+// category: 'friend' — наши, 'enemy' — не наши
+const PEOPLE_DATA = [
+    { name: "Человек 1",  img: "assets/people/1.jpg",  category: "friend" },
+    { name: "Человек 2",  img: "assets/people/2.jpg",  category: "friend" },
+    { name: "Человек 3",  img: "assets/people/3.jpg",  category: "friend" },
+    { name: "Человек 4",  img: "assets/people/4.jpg",  category: "friend" },
+    { name: "Человек 5",  img: "assets/people/5.jpg",  category: "friend" },
+    { name: "Человек 6",  img: "assets/people/6.jpg",  category: "enemy" },
+    { name: "Человек 7",  img: "assets/people/7.jpg",  category: "enemy" },
+    { name: "Человек 8",  img: "assets/people/8.jpg",  category: "enemy" },
+    { name: "Человек 9",  img: "assets/people/9.jpg",  category: "enemy" },
+    { name: "Человек 10", img: "assets/people/10.jpg", category: "enemy" }
+];
+
+const peopleTray = document.getElementById('peopleTray');
+const peopleMessage = document.getElementById('peopleMessage');
+const peopleContinueBtn = document.getElementById('peopleContinueBtn');
+const peopleZones = document.querySelectorAll('.people-zone');
+
+let peopleInitialized = false;
+let peoplePlacedCount = 0;
+let activePersonTile = null;
+
+function initPeopleSort() {
+    if (peopleInitialized) return;
+    peopleInitialized = true;
+
+    const order = [...PEOPLE_DATA.keys()];
+    shuffleArray(order);
+
+    order.forEach((dataIndex) => {
+    const person = PEOPLE_DATA[dataIndex];
+    const tile = document.createElement('div');
+    tile.className = 'person-tile';
+    tile.dataset.category = person.category;
+
+    const img = document.createElement('img');
+    img.src = person.img;
+    img.alt = person.name;
+    img.onerror = function () {
+        tile.textContent = person.name.slice(0, 2);
+        tile.style.display = 'flex';
+        tile.style.alignItems = 'center';
+        tile.style.justifyContent = 'center';
+        tile.style.color = '#fff';
+        tile.style.fontWeight = '700';
+      this.remove();
+    };
+    tile.appendChild(img);
+
+    attachPersonDragEvents(tile);
+    peopleTray.appendChild(tile);
+    });
+}
+
+function attachPersonDragEvents(tile) {
+    tile.addEventListener('pointerdown', (e) => {
+    if (tile.classList.contains('placed')) return;
+    e.preventDefault();
+
+    activePersonTile = tile;
+    tile.setPointerCapture(e.pointerId);
+
+    const rect = tile.getBoundingClientRect();
+    tile.dataset.grabOffsetX = e.clientX - rect.left;
+    tile.dataset.grabOffsetY = e.clientY - rect.top;
+
+    tile.style.width = rect.width + 'px';
+    tile.style.height = rect.height + 'px';
+    tile.style.position = 'fixed';
+    tile.style.zIndex = '1000';
+    tile.classList.add('dragging');
+    movePersonTo(tile, e.clientX, e.clientY);
+    });
+
+    tile.addEventListener('pointermove', (e) => {
+    if (activePersonTile !== tile) return;
+    movePersonTo(tile, e.clientX, e.clientY);
+    highlightZoneUnder(e.clientX, e.clientY, tile);
+    });
+
+    tile.addEventListener('pointerup', (e) => finishPersonDrag(tile, e.clientX, e.clientY));
+    tile.addEventListener('pointercancel', (e) => finishPersonDrag(tile, e.clientX, e.clientY));
+}
+
+function movePersonTo(tile, clientX, clientY) {
+    const offsetX = Number(tile.dataset.grabOffsetX) || 0;
+    const offsetY = Number(tile.dataset.grabOffsetY) || 0;
+    tile.style.left = (clientX - offsetX) + 'px';
+    tile.style.top = (clientY - offsetY) + 'px';
+}
+
+function highlightZoneUnder(clientX, clientY, tile) {
+    tile.style.visibility = 'hidden';
+    const el = document.elementFromPoint(clientX, clientY);
+    tile.style.visibility = '';
+    peopleZones.forEach(z => z.classList.remove('drag-hover'));
+    const zone = el ? el.closest('.people-zone') : null;
+    if (zone) zone.classList.add('drag-hover');
+}
+
+function finishPersonDrag(tile, clientX, clientY) {
+    if (activePersonTile !== tile) return;
+    activePersonTile = null;
+    tile.classList.remove('dragging');
+    peopleZones.forEach(z => z.classList.remove('drag-hover'));
+
+    tile.style.visibility = 'hidden';
+    const targetEl = document.elementFromPoint(clientX, clientY);
+    tile.style.visibility = '';
+
+    const zone = targetEl ? targetEl.closest('.people-zone') : null;
+
+    if (zone) {
+    const zoneCategory = zone.dataset.category;
+    const personCategory = tile.dataset.category;
+
+    if (zoneCategory === personCategory) {
+        placePersonInZone(tile, zone);
+        return;
+    } else {
+        peopleMessage.textContent = "Не туда! Присмотрись получше 👀";
+        peopleMessage.className = "captcha-message error";
+        setTimeout(() => { peopleMessage.textContent = ''; }, 1200);
+    }
+    }
+
+    resetPersonPosition(tile);
+}
+
+function resetPersonPosition(tile) {
+    tile.style.position = '';
+    tile.style.left = '';
+    tile.style.top = '';
+    tile.style.width = '';
+    tile.style.height = '';
+    tile.style.zIndex = '';
+}
+
+function placePersonInZone(tile, zone) {
+    resetPersonPosition(tile);
+    tile.classList.add('placed');
+    zone.appendChild(tile);
+
+    peoplePlacedCount++;
+    if (peoplePlacedCount === PEOPLE_DATA.length) {
+    onPeopleSortComplete();
+    }
+}
+
+function onPeopleSortComplete() {
+    peopleMessage.textContent = "Всё верно, ты знаешь наш круг! 💗";
+    peopleMessage.className = "captcha-message success";
+    peopleContinueBtn.classList.remove('hidden');
+    fireConfettiBurst();
 }
