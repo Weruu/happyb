@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>С Днём Рождения! ❤️</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ЭКРАН 1: Капча -->
+    <div id="screen-1" class="screen active">
+        <h2>Подтвердите, что вы лучшая подруга</h2>
+        <p>Здесь будет пазл-капча</p>
+        <button onclick="nextScreen(2)">Пройти капчу (тест перехода)</button>
+    </div>
+
+    <!-- ЭКРАН 2: Тест на дружбу -->
+    <div id="screen-2" class="screen">
+        <h2>Экзамен на дружбу</h2>
+        <p>Здесь будут вопросы</p>
+        <button onclick="nextScreen(3)">Завершить тест</button>
+    </div>
+
+    <!-- ЭКРАН 3: Пазл воспоминаний -->
+    <div id="screen-3" class="screen">
+        <h2>Собери наше фото</h2>
+        <p>Здесь будет сетка пазла</p>
+        <button onclick="nextScreen(4)">Собрать пазл</button>
+    </div>
+
+    <!-- ЭКРАН 4: Финал (Титры и подарок) -->
+    <div id="screen-4" class="screen">
+        <h2>Эпические титры...</h2>
+        <p>✨ Здесь появится сертификат ✨</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
