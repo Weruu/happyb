@@ -846,19 +846,40 @@ function createHiddenDigit(screenSelector, instanceId, digitValue, withHint) {
     hintEl.style.top = top + '%';
     hintEl.style.left = Math.min(left + 6, 60) + '%';
     screen.appendChild(hintEl);
+
+    // подсказка сама плавно исчезает через 5 секунд, если её не заметили
+    setTimeout(() => hideHint(hintEl), 5000);
     }
 
     digitEl.addEventListener('click', () => collectDigit(digitEl, instanceId, digitValue, hintEl));
     screen.appendChild(digitEl);
 }
 
+function hideHint(hintEl) {
+    if (!hintEl || !hintEl.isConnected) return;
+    hintEl.classList.add('hint-hide');
+    setTimeout(() => hintEl.remove(), 500);
+}
+
 function collectDigit(el, instanceId, digitValue, hintEl) {
     if (foundDigits[instanceId]) return;
     foundDigits[instanceId] = digitValue;
 
-    fireConfettiBurst();
+    // конфетти вылетает именно из того места, где была цифра
+    const rect = el.getBoundingClientRect();
+    confetti({
+        particleCount: 60,
+        spread: 70,
+        startVelocity: 25,
+        origin: {
+            x: (rect.left + rect.width / 2) / window.innerWidth,
+            y: (rect.top + rect.height / 2) / window.innerHeight
+        },
+        colors: ['#FF6FA5', '#FFD166', '#FFB8D2', '#C9184A']
+    });
+
     el.classList.add('digit-collected');
-    if (hintEl) hintEl.remove();
+    if (hintEl) hideHint(hintEl);
 
     setTimeout(() => el.remove(), 400);
 }
@@ -876,6 +897,7 @@ const digitsContinueBtn = document.getElementById('digitsContinueBtn');
 
 let digitsInitialized = false;
 let enteredSequence = [];
+let enteredTiles = []; // какие именно плитки были использованы — нужно, чтобы уметь отменять ввод
 
 function initDigitsScreen() {
     if (digitsInitialized) return;
@@ -884,6 +906,25 @@ function initDigitsScreen() {
     renderDigitsEntered();
     renderDigitsPool();
     digitsResetBtn.addEventListener('click', resetDigitsEntry);
+    document.addEventListener('keydown', handleDigitsKeydown);
+}
+
+function handleDigitsKeydown(e) {
+    const screen9 = document.getElementById('screen-9');
+    if (!screen9.classList.contains('active')) return; // работаем, только когда экран 9 активен
+
+    if (e.key === 'Backspace') {
+        e.preventDefault();
+        removeLastDigit();
+        return;
+    }
+
+    if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        const tile = Array.from(digitsPool.querySelectorAll('.digit-tile'))
+            .find(t => !t.disabled && t.textContent === e.key);
+        if (tile) pickDigit(e.key, tile);
+    }
 }
 
 function renderDigitsEntered() {
@@ -922,6 +963,7 @@ function pickDigit(value, tileEl) {
     if (tileEl.disabled || enteredSequence.length >= HIDDEN_DIGITS_ANSWER.length) return;
 
     enteredSequence.push(value);
+    enteredTiles.push(tileEl);
     tileEl.disabled = true;
     tileEl.classList.add('digit-used');
     renderDigitsEntered();
@@ -929,6 +971,18 @@ function pickDigit(value, tileEl) {
     if (enteredSequence.length === HIDDEN_DIGITS_ANSWER.length) {
     checkDigitsAnswer();
     }
+}
+
+function removeLastDigit() {
+    if (enteredSequence.length === 0) return;
+    enteredSequence.pop();
+    const tile = enteredTiles.pop();
+    if (tile) {
+        tile.disabled = false;
+        tile.classList.remove('digit-used');
+    }
+    digitsMessage.textContent = '';
+    renderDigitsEntered();
 }
 
 function checkDigitsAnswer() {
@@ -948,6 +1002,7 @@ function checkDigitsAnswer() {
 
 function resetDigitsEntry() {
     enteredSequence = [];
+    enteredTiles = [];
     digitsMessage.textContent = '';
     renderDigitsEntered();
     renderDigitsPool();
