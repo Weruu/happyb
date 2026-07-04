@@ -76,18 +76,31 @@
     </div>
 </section>
 
-<!-- ================= ЭКРАН 4: ЭКЗАМЕН НА ДРУЖБУ ================= -->
+<!-- ================= ЭКРАН 4: Алфабетка  ================= -->
 <section id="screen-4" class="screen screen-full">
-    <div class="card card-wide quiz-card">
-    <p class="eyebrow">Локальный экзамен</p>
-    <h1>Тест на дружбу</h1>
+    <div class="card card-wide alphabet-card">
+    <p class="eyebrow">Секретный шифр</p>
+    <h1>Алфавитка</h1>
 
-    <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="alphabet-question-box" id="alphabetQuestion">
+        ЗАГЛУШКА: сюда вставь свой вопрос
     </div>
-    <p class="progress-label" id="progressLabel">Просто знакомые</p>
 
-    <div id="quizContainer" class="quiz-container"></div>
+    <div class="alphabet-display-box" id="alphabetDisplayBox"></div>
+
+    <input
+        type="text"
+        id="alphabetInput"
+        class="alphabet-input-hidden"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+    >
+
+    <p id="alphabetMessage" class="captcha-message"></p>
+
+    <button id="alphabetCheckBtn" class="btn">Проверить ответ</button>
+    <button id="alphabetContinueBtn" class="btn hidden" onclick="nextScreen(5)">Дальше →</button>
     </div>
 </section>
 
@@ -123,7 +136,7 @@
 
 
 <!-- ================= ЭКРАН: ФИНАЛ ================= -->
-<section id="screen-final" class="screen screen-full">
+<section id="screen-10" class="screen screen-full">
 
     <!-- Фаза А: эпические титры -->
     <div id="crawlWrap" class="crawl-wrap">

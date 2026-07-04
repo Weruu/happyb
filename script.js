@@ -52,7 +52,8 @@ function nextScreen(screenNumber) {
 
     if (screenNumber === 2) startQuiz();
     if (screenNumber === 3) initPuzzle();
-    if (screenNumber === 4) startFinale();
+    if (screenNumber === 4) initAlphabet();
+    if (screenNumber === 10) startFinale();
 }
 
 /* ==========================================================
@@ -458,4 +459,124 @@ function activateCertificate() {
     setTimeout(() => {
         window.location.href = FINAL_LINK;
     }, 1200);
+}
+
+/* ==========================================================
+    ЭКРАН 4 — АЛФАВИТКА
+   ========================================================== */
+
+// ЗАГЛУШКА: впиши пути к своим фото букв украинского алфавита
+const ALPHABET_IMAGES = {
+    'а': 'assets/alphabet/a.jpg',
+    'б': 'assets/alphabet/b.jpg',
+    'в': 'assets/alphabet/v.jpg',
+    'г': 'assets/alphabet/g.jpg',
+    'ґ': 'assets/alphabet/g2.jpg',
+    'д': 'assets/alphabet/d.jpg',
+    'е': 'assets/alphabet/e.jpg',
+    'є': 'assets/alphabet/ye.jpg',
+    'ж': 'assets/alphabet/zh.jpg',
+    'з': 'assets/alphabet/z.jpg',
+    'и': 'assets/alphabet/y.jpg',
+    'і': 'assets/alphabet/i.jpg',
+    'ї': 'assets/alphabet/yi.jpg',
+    'й': 'assets/alphabet/i-short.jpg',
+    'к': 'assets/alphabet/k.jpg',
+    'л': 'assets/alphabet/l.jpg',
+    'м': 'assets/alphabet/m.jpg',
+    'н': 'assets/alphabet/n.jpg',
+    'о': 'assets/alphabet/o.jpg',
+    'п': 'assets/alphabet/p.jpg',
+    'р': 'assets/alphabet/r.jpg',
+    'с': 'assets/alphabet/s.jpg',
+    'т': 'assets/alphabet/t.jpg',
+    'у': 'assets/alphabet/u.jpg',
+    'ф': 'assets/alphabet/f.jpg',
+    'х': 'assets/alphabet/h.jpg',
+    'ц': 'assets/alphabet/ts.jpg',
+    'ч': 'assets/alphabet/ch.jpg',
+    'ш': 'assets/alphabet/sh.jpg',
+    'щ': 'assets/alphabet/shch.jpg',
+    'ь': 'assets/alphabet/soft.jpg',
+    'ю': 'assets/alphabet/yu.jpg',
+    'я': 'assets/alphabet/ya.jpg',
+    "'": 'assets/alphabet/apostrophe.jpg'
+};
+
+// ЗАГЛУШКА: свой вопрос и правильный ответ (ответ — маленькими буквами)
+const ALPHABET_QUESTION = "Впиши сюда свой вопрос";
+const ALPHABET_ANSWER = "впиши сюда правильный ответ";
+
+const alphabetDisplayBox = document.getElementById('alphabetDisplayBox');
+const alphabetInput = document.getElementById('alphabetInput');
+const alphabetMessage = document.getElementById('alphabetMessage');
+const alphabetCheckBtn = document.getElementById('alphabetCheckBtn');
+const alphabetContinueBtn = document.getElementById('alphabetContinueBtn');
+const alphabetQuestionEl = document.getElementById('alphabetQuestion');
+
+let alphabetInitialized = false;
+
+function initAlphabet() {
+    if (alphabetInitialized) {
+    alphabetInput.focus();
+    return;
+    }
+    alphabetInitialized = true;
+
+    alphabetQuestionEl.textContent = ALPHABET_QUESTION;
+
+    alphabetDisplayBox.addEventListener('click', () => alphabetInput.focus());
+    alphabetInput.addEventListener('input', renderAlphabetDisplay);
+    alphabetCheckBtn.addEventListener('click', checkAlphabetAnswer);
+
+    setTimeout(() => alphabetInput.focus(), 300);
+}
+
+function renderAlphabetDisplay() {
+    alphabetDisplayBox.innerHTML = '';
+    const value = alphabetInput.value;
+
+    for (const rawChar of value) {
+    if (rawChar === ' ') {
+        const spacer = document.createElement('div');
+        spacer.className = 'alphabet-space';
+        alphabetDisplayBox.appendChild(spacer);
+        continue;
+    }
+
+    const char = rawChar.toLowerCase();
+    const imgSrc = ALPHABET_IMAGES[char];
+    const el = document.createElement(imgSrc ? 'img' : 'span');
+
+    if (imgSrc) {
+        el.className = 'alphabet-letter-img';
+        el.src = imgSrc;
+        el.alt = rawChar;
+        el.onerror = function () {
+        const fallback = document.createElement('span');
+        fallback.className = 'alphabet-letter-fallback';
+        fallback.textContent = rawChar;
+        this.replaceWith(fallback);
+        };
+    } else {
+        el.className = 'alphabet-letter-fallback';
+        el.textContent = rawChar;
+    }
+
+    alphabetDisplayBox.appendChild(el);
+    }
+}
+
+function checkAlphabetAnswer() {
+    const value = alphabetInput.value.trim().toLowerCase();
+    if (value === ALPHABET_ANSWER.trim().toLowerCase()) {
+    alphabetMessage.textContent = "Верно! Ты знаешь наш алфавит 💗";
+    alphabetMessage.className = "captcha-message success";
+    alphabetInput.disabled = true;
+    alphabetCheckBtn.classList.add('hidden');
+    alphabetContinueBtn.classList.remove('hidden');
+    } else {
+    alphabetMessage.textContent = "Не то... попробуй ещё раз 🔤";
+    alphabetMessage.className = "captcha-message error";
+    }
 }
