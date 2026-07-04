@@ -53,7 +53,7 @@ body {
     text-align: center;
 }
 
-/* Скрываем все экраны по умолчанию */
+/* Скрываем все экраны по умолчанию  */
 .screen {
     display: none;
     background: white;
