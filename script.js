@@ -1,14 +1,461 @@
-// Функция для переключения между экранами
+/* ==========================================================
+   НАСТРОЙКИ — здесь легко всё поменять под себя
+   ========================================================== */
+const FINAL_LINK = "https://example.com/sertificate.pdf"; // ЗАГЛУШКА: ссылка на страницу/pdf с сертификатом на пирсинг
+
+const CAPTCHA_TARGET = 68;   // % позиции, где должен оказаться кусочек пазла (совпадает с .puzzle-gap в CSS)
+const CAPTCHA_TOLERANCE = 4; // допустимая погрешность
+
+const FAIL_JOKES = [
+  "Доступ запрещён. Вы точно знаете именинницу?",
+  "Подозрительная активность! Кто ты и куда дела мою подругу?",
+  "Ошибка 404: дружба не найдена. Попробуй ещё раз.",
+  "Кажется, ты самозванка. Настоящая бы уже собрала пазл!"
+];
+
+// ЗАГЛУШКА: замени вопросы, ответы и флаги под свою историю
+const QUIZ_QUESTIONS = [
+  {
+    question: "Что мы закажем поесть в 2 часа ночи?",
+    options: ["Суши", "Шаурму", "Пиццу", "Ничего, мы спим как нормальные люди"],
+    correct: 2,
+    timer: 15
+  },
+  {
+    question: "Кто из нас дольше собирается перед выходом?",
+    options: ["Я", "Ты", "Мы обе одинаково долго"],
+    correct: 1,
+    runaway: 1 // индекс варианта, который будет убегать от курсора
+  },
+  {
+    question: "После какого события было записано это голосовое?",
+    options: ["После контрольной", "После дня рождения", "После того самого похода", "Никто не помнит"],
+    correct: 2,
+    audio: true // ЗАГЛУШКА: вставь свой аудиофайл ниже в разметке рендера
+  },
+  {
+    question: "Сколько раз мы обещали лечь спать пораньше и не сделали этого?",
+    options: ["1-2 раза", "Каждый день", "Ни разу — мы держим слово", "Со счёту сбились"],
+    correct: 1
+  }
+];
+
+/* ==========================================================
+   ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
+   ========================================================== */
 function nextScreen(screenNumber) {
-    // Находим текущий активный экран и скрываем его
-    const currentActive = document.querySelector('.screen.active');
-    if (currentActive) {
-        currentActive.classList.remove('active');
+  const currentActive = document.querySelector('.screen.active');
+  if (currentActive) currentActive.classList.remove('active');
+
+  const target = document.getElementById(`screen-${screenNumber}`);
+  if (target) target.classList.add('active');
+
+  if (screenNumber === 2) startQuiz();
+  if (screenNumber === 3) initPuzzle();
+  if (screenNumber === 4) startFinale();
+}
+
+/* ==========================================================
+   ЭКРАН 1 — КАПЧА (слайдер-пазл)
+   ========================================================== */
+const captchaSlider = document.getElementById('captchaSlider');
+const puzzlePiece = document.getElementById('puzzlePiece');
+const captchaMessage = document.getElementById('captchaMessage');
+const captchaContinueBtn = document.getElementById('captchaContinueBtn');
+
+let captchaSolved = false;
+
+captchaSlider.addEventListener('input', () => {
+  puzzlePiece.style.left = captchaSlider.value + '%';
+});
+
+function checkCaptcha() {
+  if (captchaSolved) return;
+  const value = Number(captchaSlider.value);
+  const diff = Math.abs(value - CAPTCHA_TARGET);
+
+  if (diff <= CAPTCHA_TOLERANCE) {
+    captchaSolved = true;
+    puzzlePiece.style.left = CAPTCHA_TARGET + '%';
+    captchaMessage.textContent = "Доступ разрешён. Подтверждено: лучшая подруга ✅";
+    captchaMessage.className = "captcha-message success";
+    captchaSlider.disabled = true;
+    captchaContinueBtn.classList.remove('hidden');
+    playDing();
+  } else {
+    captchaMessage.textContent = FAIL_JOKES[Math.floor(Math.random() * FAIL_JOKES.length)];
+    captchaMessage.className = "captcha-message error";
+    // возвращаем кусочек в начало, чтобы попробовать снова
+    setTimeout(() => {
+      captchaSlider.value = 0;
+      puzzlePiece.style.left = '0%';
+    }, 700);
+  }
+}
+
+captchaSlider.addEventListener('change', checkCaptcha); // отпустили мышь/палец
+captchaSlider.addEventListener('touchend', checkCaptcha);
+
+// простой звук "дзинь" без внешних файлов (Web Audio API)
+function playDing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 1200;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) { /* тихо игнорируем, если звук недоступен */ }
+}
+
+/* ==========================================================
+   ЭКРАН 2 — ЭКЗАМЕН НА ДРУЖБУ
+   ========================================================== */
+const quizContainer = document.getElementById('quizContainer');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+
+const PROGRESS_LABELS = ["Просто знакомые", "Приятельницы", "Хорошие подруги", "Лучшие подруги", "Соулмейты"];
+
+let currentQuestionIndex = 0;
+let quizStarted = false;
+let timerInterval = null;
+
+function startQuiz() {
+  if (quizStarted) return;
+  quizStarted = true;
+  currentQuestionIndex = 0;
+  renderQuestion();
+}
+
+function updateProgress() {
+  const pct = (currentQuestionIndex / QUIZ_QUESTIONS.length) * 100;
+  progressFill.style.width = pct + '%';
+  const labelIndex = Math.min(
+    Math.floor((currentQuestionIndex / QUIZ_QUESTIONS.length) * (PROGRESS_LABELS.length - 1)),
+    PROGRESS_LABELS.length - 1
+  );
+  progressLabel.textContent = PROGRESS_LABELS[labelIndex];
+}
+
+function renderQuestion() {
+  clearInterval(timerInterval);
+  updateProgress();
+
+  const q = QUIZ_QUESTIONS[currentQuestionIndex];
+
+  const wrap = document.createElement('div');
+  wrap.className = 'quiz-question';
+
+  let html = `<h2>${q.question}</h2>`;
+  if (q.timer) {
+    html += `<div class="quiz-timer" id="quizTimer">⏱ ${q.timer} сек</div>`;
+  }
+  if (q.audio) {
+    // ЗАГЛУШКА: замени src на свой аудиофайл, например assets/voice.mp3
+    html += `<audio class="quiz-audio" controls src=""></audio><p style="font-size:0.8rem;opacity:0.6">ЗАГЛУШКА: вставь сюда аудиофайл (src у &lt;audio&gt;)</p>`;
+  }
+  html += `<div class="quiz-options" id="quizOptions"></div>`;
+  wrap.innerHTML = html;
+
+  quizContainer.innerHTML = '';
+  quizContainer.appendChild(wrap);
+
+  const optionsWrap = document.getElementById('quizOptions');
+  q.options.forEach((optionText, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = optionText;
+    btn.addEventListener('click', () => handleAnswer(index, btn));
+
+    if (q.runaway === index) {
+      btn.classList.add('runaway');
+      makeButtonRunaway(btn, optionsWrap);
     }
 
-    // Находим нужный экран и показываем его
-    const nextScreen = document.getElementById(`screen-${screenNumber}`);
-    if (nextScreen) {
-        nextScreen.classList.add('active');
+    optionsWrap.appendChild(btn);
+  });
+
+  // фейковый тикающий таймер — чисто для драмы, ни на что не влияет
+  if (q.timer) {
+    let timeLeft = q.timer;
+    const timerEl = document.getElementById('quizTimer');
+    timerInterval = setInterval(() => {
+      timeLeft -= 1;
+      if (timerEl) timerEl.textContent = `⏱ ${Math.max(timeLeft, 0)} сек`;
+      if (timeLeft <= 0) clearInterval(timerInterval);
+    }, 1000);
+  }
+}
+
+function handleAnswer(index, btnEl) {
+  const q = QUIZ_QUESTIONS[currentQuestionIndex];
+  if (index === q.correct) {
+    btnEl.classList.add('correct-flash');
+    clearInterval(timerInterval);
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < QUIZ_QUESTIONS.length) {
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    }, 600);
+  } else {
+    btnEl.classList.add('wrong-flash');
+    setTimeout(() => btnEl.classList.remove('wrong-flash'), 500);
+  }
+}
+
+function finishQuiz() {
+  updateProgress();
+  progressFill.style.width = '100%';
+  progressLabel.textContent = "Соулмейты 💗";
+  quizContainer.innerHTML = `
+    <p style="font-weight:700; margin-bottom: 6px;">Экзамен сдан на отлично! 🎓</p>
+    <p style="opacity:0.75; margin-bottom: 18px;">Осталось последнее испытание...</p>
+    <button class="btn" onclick="nextScreen(3)">К финальному испытанию →</button>
+  `;
+}
+
+// логика "убегающей" кнопки
+let runawayDodgeCount = {};
+function makeButtonRunaway(btn, container) {
+  const key = btn.textContent;
+  runawayDodgeCount[key] = 0;
+  const MAX_DODGES = 4; // после нескольких побегов кнопка "устаёт" и её можно поймать
+
+  btn.addEventListener('mouseenter', () => {
+    if (runawayDodgeCount[key] >= MAX_DODGES) return;
+    runawayDodgeCount[key]++;
+
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    const maxX = containerRect.width - btnRect.width;
+    const maxY = containerRect.height - btnRect.height;
+
+    const randX = Math.max(0, Math.random() * maxX);
+    const randY = Math.max(0, Math.random() * maxY);
+
+    btn.style.position = 'absolute';
+    btn.style.left = randX + 'px';
+    btn.style.top = randY + 'px';
+  });
+}
+
+/* ==========================================================
+   ЭКРАН 3 — ПАЗЛ ВОСПОМИНАНИЙ (Pointer Events — работает и мышью, и пальцем)
+   ========================================================== */
+const GRID_SIZE = 3; // 3x3 = 9 деталей
+const puzzleBoard = document.getElementById('puzzleBoard');
+const puzzlePiecesWrap = document.getElementById('puzzlePieces');
+const puzzleMessage = document.getElementById('puzzleMessage');
+const puzzleContinueBtn = document.getElementById('puzzleContinueBtn');
+
+let puzzleInitialized = false;
+let placedCount = 0;
+let activeDragTile = null;
+
+function initPuzzle() {
+  if (puzzleInitialized) return;
+  puzzleInitialized = true;
+
+  const total = GRID_SIZE * GRID_SIZE;
+  puzzleBoard.innerHTML = '';
+  puzzlePiecesWrap.innerHTML = '';
+
+  // создаём слоты на доске
+  for (let i = 0; i < total; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'puzzle-slot';
+    slot.dataset.index = i;
+    // ЗАГЛУШКА: подсказка-номер видна только пока нет реального фото —
+    // когда вставишь фрагменты фотографии, подсказка не нужна, убери строку ниже
+    slot.innerHTML = `<span class="slot-hint">${i + 1}</span>`;
+    puzzleBoard.appendChild(slot);
+  }
+
+  // создаём кусочки в перемешанном порядке
+  const order = [...Array(total).keys()];
+  shuffleArray(order);
+
+  order.forEach((correctIndex) => {
+    const tile = document.createElement('div');
+    tile.className = 'puzzle-piece-tile';
+    tile.dataset.correctIndex = correctIndex;
+    // ЗАГЛУШКА: замени номер на фрагмент реальной фотографии (background-image + background-position)
+    tile.textContent = correctIndex + 1;
+
+    attachDragEvents(tile);
+    puzzlePiecesWrap.appendChild(tile);
+  });
+}
+
+function attachDragEvents(tile) {
+  tile.addEventListener('pointerdown', (e) => {
+    if (tile.classList.contains('placed')) return;
+    e.preventDefault();
+
+    activeDragTile = tile;
+    tile.setPointerCapture(e.pointerId);
+
+    const rect = tile.getBoundingClientRect();
+    tile.dataset.grabOffsetX = e.clientX - rect.left;
+    tile.dataset.grabOffsetY = e.clientY - rect.top;
+
+    tile.style.width = rect.width + 'px';
+    tile.style.height = rect.height + 'px';
+    tile.style.position = 'fixed';
+    tile.style.zIndex = '1000';
+    tile.classList.add('dragging');
+    moveTileTo(tile, e.clientX, e.clientY);
+  });
+
+  tile.addEventListener('pointermove', (e) => {
+    if (activeDragTile !== tile) return;
+    moveTileTo(tile, e.clientX, e.clientY);
+  });
+
+  tile.addEventListener('pointerup', (e) => finishDrag(tile, e.clientX, e.clientY));
+  tile.addEventListener('pointercancel', (e) => finishDrag(tile, e.clientX, e.clientY));
+}
+
+function moveTileTo(tile, clientX, clientY) {
+  const offsetX = Number(tile.dataset.grabOffsetX) || 0;
+  const offsetY = Number(tile.dataset.grabOffsetY) || 0;
+  tile.style.left = (clientX - offsetX) + 'px';
+  tile.style.top = (clientY - offsetY) + 'px';
+}
+
+function finishDrag(tile, clientX, clientY) {
+  if (activeDragTile !== tile) return;
+  activeDragTile = null;
+  tile.classList.remove('dragging');
+
+  // на миг прячем кусочек, чтобы узнать, что находится под ним
+  tile.style.visibility = 'hidden';
+  const targetEl = document.elementFromPoint(clientX, clientY);
+  tile.style.visibility = '';
+
+  const slot = targetEl ? targetEl.closest('.puzzle-slot') : null;
+
+  if (slot) {
+    const correctIndex = Number(tile.dataset.correctIndex);
+    const slotIndex = Number(slot.dataset.index);
+
+    if (correctIndex === slotIndex && !slot.classList.contains('filled')) {
+      placeTileInSlot(tile, slot);
+      return;
+    } else {
+      puzzleMessage.textContent = "Не тот кусочек для этого места — попробуй ещё раз 🧩";
+      puzzleMessage.className = "captcha-message error";
+      setTimeout(() => { puzzleMessage.textContent = ''; }, 1200);
     }
+  }
+
+  resetTilePosition(tile);
+}
+
+function resetTilePosition(tile) {
+  tile.style.position = '';
+  tile.style.left = '';
+  tile.style.top = '';
+  tile.style.width = '';
+  tile.style.height = '';
+  tile.style.zIndex = '';
+}
+
+function placeTileInSlot(tile, slot) {
+  resetTilePosition(tile);
+  tile.classList.add('placed');
+  tile.style.width = '100%';
+  tile.style.height = '100%';
+  slot.classList.add('filled');
+  slot.innerHTML = '';
+  slot.appendChild(tile);
+
+  placedCount++;
+  if (placedCount === GRID_SIZE * GRID_SIZE) {
+    onPuzzleComplete();
+  }
+}
+
+function onPuzzleComplete() {
+  puzzleMessage.textContent = "Воспоминание собрано! 💗";
+  puzzleMessage.className = "captcha-message success";
+  puzzleContinueBtn.classList.remove('hidden');
+  fireConfettiBurst();
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* ==========================================================
+   ЭКРАН 4 — ФИНАЛ (титры + сертификат)
+   ========================================================== */
+const crawlWrap = document.getElementById('crawlWrap');
+const crawlText = document.getElementById('crawlText');
+const skipCrawlBtn = document.getElementById('skipCrawlBtn');
+const certificateWrap = document.getElementById('certificateWrap');
+const certificateBtn = document.getElementById('certificateBtn');
+
+let finaleStarted = false;
+let confettiInterval = null;
+
+function startFinale() {
+  if (finaleStarted) return;
+  finaleStarted = true;
+
+  crawlText.addEventListener('animationend', showCertificate);
+  skipCrawlBtn.addEventListener('click', showCertificate);
+}
+
+function showCertificate() {
+  crawlWrap.classList.add('hidden');
+  certificateWrap.classList.remove('hidden');
+  startAmbientConfetti();
+}
+
+function startAmbientConfetti() {
+  if (confettiInterval) return;
+  confettiInterval = setInterval(() => {
+    confetti({
+      particleCount: 30,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#FF6FA5', '#FFD166', '#FFB8D2', '#C9184A']
+    });
+  }, 1200);
+}
+
+function fireConfettiBurst() {
+  confetti({
+    particleCount: 120,
+    spread: 90,
+    origin: { y: 0.6 },
+    colors: ['#FF6FA5', '#FFD166', '#FFB8D2', '#C9184A']
+  });
+}
+
+certificateBtn.addEventListener('click', activateCertificate);
+certificateBtn.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') activateCertificate();
+});
+
+function activateCertificate() {
+  certificateBtn.style.pointerEvents = 'none';
+  fireConfettiBurst();
+  setTimeout(() => fireConfettiBurst(), 300);
+
+  setTimeout(() => {
+    window.location.href = FINAL_LINK;
+  }, 1200);
 }

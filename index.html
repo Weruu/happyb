@@ -1,40 +1,115 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>С Днём Рождения! ❤️</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>С Днём Рождения! 🌸</title>
+
+<!-- Шрифты -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+<!-- Конфетти для финала -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ЭКРАН 1: Капча -->
-    <div id="screen-1" class="screen active">
-        <h2>Подтвердите, что вы лучшая подруга</h2>
-        <p>Здесь будет пазл-капча</p>
-        <button onclick="nextScreen(2)">Пройти капчу (тест перехода)</button>
+<!-- декоративные плавающие лепестки на фоне -->
+<div class="petals" aria-hidden="true"></div>
+
+<!-- ================= ЭКРАН 1: ПОДРУГО-КАПЧА ================= -->
+<section id="screen-1" class="screen active">
+  <div class="card captcha-card">
+    <p class="eyebrow">Система безопасности</p>
+    <h1>Подтвердите статус Besties</h1>
+    <p class="subtitle">Сдвиньте кусочек, чтобы собрать фото и доказать, что вы — настоящая лучшая подруга</p>
+
+    <div class="captcha-photo-wrap" id="captchaPhotoWrap">
+      <!-- ЗАГЛУШКА: замени на фон с вашим совместным фото -->
+      <div class="placeholder-photo">
+        📸<span>ЗАГЛУШКА ФОТО<br>(замени на вашу совместную)</span>
+      </div>
+      <div class="puzzle-gap" id="puzzleGap"></div>
+      <div class="puzzle-piece" id="puzzlePiece">🧩</div>
     </div>
 
-    <!-- ЭКРАН 2: Тест на дружбу -->
-    <div id="screen-2" class="screen">
-        <h2>Экзамен на дружбу</h2>
-        <p>Здесь будут вопросы</p>
-        <button onclick="nextScreen(3)">Завершить тест</button>
+    <input type="range" min="0" max="100" value="0" id="captchaSlider" class="captcha-slider">
+    <p class="slider-hint">← потяните, чтобы собрать пазл →</p>
+
+    <p id="captchaMessage" class="captcha-message"></p>
+
+    <button id="captchaContinueBtn" class="btn hidden" onclick="nextScreen(2)">Войти на сайт ✨</button>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН 2: ЭКЗАМЕН НА ДРУЖБУ ================= -->
+<section id="screen-2" class="screen screen-full">
+  <div class="card card-wide quiz-card">
+    <p class="eyebrow">Локальный экзамен</p>
+    <h1>Тест на дружбу</h1>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+
+    <div id="quizContainer" class="quiz-container"></div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН 3: СОБЕРИ ВОСПОМИНАНИЕ ================= -->
+<section id="screen-3" class="screen screen-full">
+  <div class="card card-wide puzzle-card">
+    <p class="eyebrow">Финальное испытание</p>
+    <h1>Собери воспоминание</h1>
+    <p class="subtitle">Перетащи кусочки на свои места</p>
+
+    <div class="puzzle-area">
+      <div class="puzzle-board" id="puzzleBoard"></div>
+      <div class="puzzle-pieces" id="puzzlePieces"></div>
     </div>
 
-    <!-- ЭКРАН 3: Пазл воспоминаний -->
-    <div id="screen-3" class="screen">
-        <h2>Собери наше фото</h2>
-        <p>Здесь будет сетка пазла</p>
-        <button onclick="nextScreen(4)">Собрать пазл</button>
-    </div>
+    <p id="puzzleMessage" class="captcha-message"></p>
+    <button id="puzzleContinueBtn" class="btn hidden" onclick="nextScreen(4)">Получить главную награду 🎁</button>
+  </div>
+</section>
 
-    <!-- ЭКРАН 4: Финал (Титры и подарок) -->
-    <div id="screen-4" class="screen">
-        <h2>Эпические титры...</h2>
-        <p>✨ Здесь появится сертификат ✨</p>
-    </div>
+<!-- ================= ЭКРАН 4: ФИНАЛ ================= -->
+<section id="screen-4" class="screen screen-full">
 
-    <script src="script.js"></script>
+  <!-- Фаза А: эпические титры -->
+  <div id="crawlWrap" class="crawl-wrap">
+    <div class="crawl-fade-top"></div>
+    <div class="crawl-perspective">
+      <div class="crawl-text" id="crawlText">
+        <p class="crawl-title">С ДНЁМ РОЖДЕНИЯ</p>
+        <p>Давным-давно, в одном очень далёком городе <em>(замени на ваш город/универ)</em>, встретились две легенды...</p>
+        <p>ЗАГЛУШКА: здесь будет краткая шуточная история о том, что вы вместе пережили за этот год — мемы, приключения, ночные созвоны и всё остальное.</p>
+        <p>Она прошла капчу. Она сдала экзамен. Она собрала воспоминание по кусочкам.</p>
+        <p>Она доказала, что достойна называться Лучшей Подругой.</p>
+        <p class="crawl-title">И теперь для неё открывается новый уровень...</p>
+      </div>
+    </div>
+    <button id="skipCrawlBtn" class="btn btn-ghost skip-btn">Пропустить ⏭</button>
+  </div>
+
+  <!-- Фаза Б: сертификат -->
+  <div id="certificateWrap" class="certificate-wrap hidden">
+    <p class="eyebrow">Магия активирована</p>
+    <h1>С Днём Рождения! 🎉</h1>
+    <div class="certificate" id="certificateBtn" tabindex="0" role="button">
+      <!-- ЗАГЛУШКА: замени на картинку сертификата -->
+      <div class="placeholder-photo certificate-placeholder">
+        🏆<span>ЗАГЛУШКА<br>Официальный Сертификат<br>Лучшей Подруги</span>
+      </div>
+      <p class="certificate-cta">Нажми на меня, чтобы активировать магию ✨</p>
+    </div>
+  </div>
+
+</section>
+
+<script src="script.js"></script>
 </body>
 </html>
