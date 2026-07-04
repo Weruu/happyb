@@ -129,60 +129,121 @@
     </div>
 </section>
 
-<!-- ================= ЭКРАН 6: ? ================= -->
+<!-- ================= ЭКРАН 6: Вопрос по картинке ================= -->
 <section id="screen-6" class="screen screen-full">
-    <div class="card card-wide quiz-card">
-    <p class="eyebrow">Локальный экзамен</p>
-    <h1>Тест на дружбу</h1>
+    <div class="card card-wide picture-card">
+    <p class="eyebrow">Проверка памяти</p>
+    <h1>Что здесь происходит?</h1>
+    <p class="subtitle">Посмотри на фото и выбери правильный вариант</p>
 
-    <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="picture-question-box">
+        <!-- ЗАГЛУШКА: замени src на свою фотографию -->
+        <img id="pictureQuestionImg" src="assets/picture-question.jpg" alt="Вопрос по картинке">
     </div>
-    <p class="progress-label" id="progressLabel">Просто знакомые</p>
 
-    <div id="quizContainer" class="quiz-container"></div>
+    <div class="picture-options" id="pictureOptions"></div>
+
+    <p id="pictureMessage" class="captcha-message"></p>
+    <button id="pictureContinueBtn" class="btn hidden" onclick="nextScreen(7)">Дальше →</button>
     </div>
 </section>
-<!-- ================= ЭКРАН 7: ? ================= -->
-<section id="screen-6" class="screen screen-full">
-    <div class="card card-wide quiz-card">
-    <p class="eyebrow">Локальный экзамен</p>
-    <h1>Тест на дружбу</h1>
+<!-- ================= ЭКРАН 7: ТАРО НАШЕЙ ДРУЖБЫ ================= -->
+<section id="screen-7" class="screen screen-full tarot-screen">
+    <div class="card card-wide tarot-card-wrap">
+    <p class="eyebrow">Магический расклад</p>
+    <h1>Таро нашей дружбы</h1>
+    <p class="subtitle">Духи предков (и я) приготовили для тебя прогноз на этот год. Переверни все 3 карты, чтобы узнать своё будущее!</p>
 
-    <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="tarot-cards" id="tarotCards">
+
+        <div class="tarot-card" data-card="1">
+        <div class="tarot-card-inner">
+            <div class="tarot-face tarot-back">
+            <span class="tarot-stars">✦ ✧ ✦</span>
+            <span class="tarot-back-title">Аркан<br>Подруги</span>
+            <span class="tarot-stars">✦ ✧ ✦</span>
+            </div>
+            <div class="tarot-face tarot-front">
+            <!-- ЗАГЛУШКА: сюда позже можно вставить картинку карты -->
+            <p class="tarot-name">Аркан: Бесконечный кофе</p>
+            <p class="tarot-text">В этом году все твои спонтанные покупки будут оправданы, а скидки будут сами находить тебя.</p>
+            </div>
+        </div>
+        </div>
+
+        <div class="tarot-card" data-card="2">
+        <div class="tarot-card-inner">
+            <div class="tarot-face tarot-back">
+            <span class="tarot-stars">✦ ✧ ✦</span>
+            <span class="tarot-back-title">Аркан<br>Подруги</span>
+            <span class="tarot-stars">✦ ✧ ✦</span>
+            </div>
+            <div class="tarot-face tarot-front">
+            <p class="tarot-name">Аркан: Отшиватель</p>
+            <p class="tarot-text">К тебе будут клеиться только краши, а все кринжовые челы отправятся в бан автоматически.</p>
+            </div>
+        </div>
+        </div>
+
+        <div class="tarot-card" data-card="3">
+        <div class="tarot-card-inner">
+            <div class="tarot-face tarot-back">
+            <span class="tarot-stars">✦ ✧ ✦</span>
+            <span class="tarot-back-title">Аркан<br>Подруги</span>
+            <span class="tarot-stars">✦ ✧ ✦</span>
+            </div>
+            <div class="tarot-face tarot-front">
+            <p class="tarot-name">Аркан: Дзен-мастер</p>
+            <p class="tarot-text">Стрессоустойчивость 80-го уровня, идеальные стрелки на глазах с первого раза даже утром в понедельник.</p>
+            </div>
+        </div>
+        </div>
+
     </div>
-    <p class="progress-label" id="progressLabel">Просто знакомые</p>
 
-    <div id="quizContainer" class="quiz-container"></div>
+    <button id="tarotContinueBtn" class="btn hidden" onclick="nextScreen(8)">Принять магию и идти дальше ✨</button>
     </div>
 </section>
-<!-- ================= ЭКРАН 8: ? ================= -->
-<section id="screen-6" class="screen screen-full">
-    <div class="card card-wide quiz-card">
-    <p class="eyebrow">Локальный экзамен</p>
-    <h1>Тест на дружбу</h1>
 
-    <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
+<!-- ================= ЭКРАН 8: БЕСПРОИГРЫШНАЯ ЛОТЕРЕЯ ================= -->
+<section id="screen-8" class="screen screen-full">
+    <div class="card card-wide scratch-card-wrap">
+    <p class="eyebrow">Счастливый билет</p>
+    <h1>Стрит-билет на День Рождения!</h1>
+    <p class="subtitle">Сотри монеткой (или пальцем), чтобы получить секретный бонус</p>
+
+    <div class="scratch-area" id="scratchArea">
+        <!-- то, что откроется под слоем -->
+        <div class="scratch-prize">
+        <!-- ЗАГЛУШКА: замени на свою фотку -->
+        <div class="placeholder-photo scratch-prize-photo">
+            🎉<span>ЗАГЛУШКА ФОТО<br>(твоя самая кринжовая совместная)</span>
+        </div>
+        <p class="scratch-prize-text">Даже на этом фото ты 10/10! 💗<br><em>Купон: 1 бесплатное нытьё в 3 часа ночи с моей полной поддержкой</em></p>
+        </div>
+
+        <!-- стираемый слой -->
+        <canvas id="scratchCanvas"></canvas>
     </div>
-    <p class="progress-label" id="progressLabel">Просто знакомые</p>
 
-    <div id="quizContainer" class="quiz-container"></div>
+    <p id="scratchMessage" class="captcha-message"></p>
+    <button id="scratchContinueBtn" class="btn hidden" onclick="nextScreen(9)">Дальше →</button>
     </div>
 </section>
-<!-- ================= ЭКРАН 9: ? ================= -->
-<section id="screen-6" class="screen screen-full">
-    <div class="card card-wide quiz-card">
-    <p class="eyebrow">Локальный экзамен</p>
-    <h1>Тест на дружбу</h1>
 
-    <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+<!-- ================= ЭКРАН 9: СБОРКА КОДА ================= -->
+<section id="screen-9" class="screen screen-full">
+    <div class="card card-wide digits-card">
+    <p class="eyebrow">Собери код</p>
+    <h1>Вспомни дату</h1>
+    <p class="subtitle">Нажимай на цифры в правильном порядке, чтобы восстановить дату нашего знакомства</p>
 
-    <div id="quizContainer" class="quiz-container"></div>
+    <div class="digits-entered" id="digitsEntered"></div>
+    <div class="digits-pool" id="digitsPool"></div>
+
+    <p id="digitsMessage" class="captcha-message"></p>
+    <button id="digitsResetBtn" class="btn btn-ghost">Сбросить</button>
+    <button id="digitsContinueBtn" class="btn hidden" onclick="nextScreen('final')">На финальный слайд →</button>
     </div>
 </section>
 

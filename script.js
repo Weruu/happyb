@@ -50,12 +50,19 @@ function nextScreen(screenNumber) {
     const target = document.getElementById(`screen-${screenNumber}`);
     if (target) target.classList.add('active');
 
+    spawnDigitForScreen(screenNumber);
+
     if (screenNumber === 2) startQuiz();
     if (screenNumber === 3) initPuzzle();
     if (screenNumber === 4) initAlphabet();
     if (screenNumber === 5) initPeopleSort();
+    if (screenNumber === 6) initPictureQuestion();
+    if (screenNumber === 7) initTarot();
+    if (screenNumber === 8) initScratchCard();
+    if (screenNumber === 9) initDigitsScreen();
     if (screenNumber === 10) startFinale();
 }
+
 
 /* ==========================================================
         ЭКРАН 1 — КАПЧА (слайдер-пазл)
@@ -633,7 +640,7 @@ function initPeopleSort() {
         tile.style.justifyContent = 'center';
         tile.style.color = '#fff';
         tile.style.fontWeight = '700';
-      this.remove();
+        this.remove();
     };
     tile.appendChild(img);
 
@@ -741,5 +748,350 @@ function onPeopleSortComplete() {
     peopleMessage.textContent = "Всё верно, ты знаешь наш круг! 💗";
     peopleMessage.className = "captcha-message success";
     peopleContinueBtn.classList.remove('hidden');
+    fireConfettiBurst();
+}
+/* ==========================================================
+    ЭКРАН 6 — ВОПРОС ПО КАРТИНКЕ
+   ========================================================== */
+
+// ЗАГЛУШКА: свои варианты ответа, correct — индекс правильного (с нуля)
+const PICTURE_OPTIONS = [
+    "Вариант ответа 1",
+    "Вариант ответа 2",
+    "Вариант ответа 3",
+    "Вариант ответа 4"
+];
+const PICTURE_CORRECT_INDEX = 0;
+
+const pictureOptionsWrap = document.getElementById('pictureOptions');
+const pictureMessage = document.getElementById('pictureMessage');
+const pictureContinueBtn = document.getElementById('pictureContinueBtn');
+
+let pictureInitialized = false;
+
+function initPictureQuestion() {
+    if (pictureInitialized) return;
+    pictureInitialized = true;
+
+    PICTURE_OPTIONS.forEach((text, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'picture-option';
+    btn.textContent = text;
+    btn.addEventListener('click', () => handlePictureAnswer(index, btn));
+    pictureOptionsWrap.appendChild(btn);
+    });
+}
+
+function handlePictureAnswer(index, btnEl) {
+    const allButtons = pictureOptionsWrap.querySelectorAll('.picture-option');
+
+    if (index === PICTURE_CORRECT_INDEX) {
+    btnEl.classList.add('correct-flash');
+    allButtons.forEach(b => b.disabled = true);
+    pictureMessage.textContent = "Точно! Ты помнишь этот момент 💗";
+    pictureMessage.className = "captcha-message success";
+    pictureContinueBtn.classList.remove('hidden');
+    } else {
+    btnEl.classList.add('wrong-flash');
+    setTimeout(() => btnEl.classList.remove('wrong-flash'), 500);
+    pictureMessage.textContent = "Не то... попробуй ещё раз";
+    pictureMessage.className = "captcha-message error";
+    }
+}
+
+/* ==========================================================
+    ПРЯЧУЩИЕСЯ ЦИФРЫ (экраны 2-8) — дата знакомства 30.06.24
+   ========================================================== */
+
+// ЗАГЛУШКА: если захочешь поменять расстановку — просто поменяй номера экранов здесь
+const DIGIT_PLACEMENTS = {
+    2: { id: 'digit-1', value: '3', hint: true },
+    3: { id: 'digit-2', value: '0' },
+    4: { id: 'digit-3', value: '0' },
+    5: { id: 'digit-4', value: '6' },
+    6: { id: 'digit-5', value: '2' },
+    8: { id: 'digit-6', value: '4' }
+  // экран 7 — без цифры, так и задумано (6 цифр на 7 экранов)
+};
+
+let foundDigits = {}; // instanceId -> значение цифры
+
+function spawnDigitForScreen(screenNumber) {
+    const placement = DIGIT_PLACEMENTS[screenNumber];
+    if (!placement) return;
+    createHiddenDigit(`#screen-${screenNumber}`, placement.id, placement.value, placement.hint);
+}
+
+function createHiddenDigit(screenSelector, instanceId, digitValue, withHint) {
+    const screen = document.querySelector(screenSelector);
+  if (!screen || document.getElementById(instanceId)) return; // не создаём дважды
+
+    const digitEl = document.createElement('div');
+    digitEl.id = instanceId;
+    digitEl.className = 'hidden-digit';
+    digitEl.textContent = digitValue;
+
+  // случайная позиция в пределах экрана, не совсем впритык к краям
+  const top = 8 + Math.random() * 80;
+  const left = 6 + Math.random() * 82;
+    digitEl.style.top = top + '%';
+    digitEl.style.left = left + '%';
+
+    let hintEl = null;
+    if (withHint) {
+    hintEl = document.createElement('div');
+    hintEl.className = 'hidden-digit-hint';
+    hintEl.id = 'hint-' + instanceId;
+    hintEl.innerHTML = '↖ будь внимательна на КАЖДОМ слайде';
+    hintEl.style.top = top + '%';
+    hintEl.style.left = Math.min(left + 6, 60) + '%';
+    screen.appendChild(hintEl);
+    }
+
+    digitEl.addEventListener('click', () => collectDigit(digitEl, instanceId, digitValue, hintEl));
+    screen.appendChild(digitEl);
+}
+
+function collectDigit(el, instanceId, digitValue, hintEl) {
+    if (foundDigits[instanceId]) return;
+    foundDigits[instanceId] = digitValue;
+
+    fireConfettiBurst();
+    el.classList.add('digit-collected');
+    if (hintEl) hintEl.remove();
+
+    setTimeout(() => el.remove(), 400);
+}
+
+/* ==========================================================
+    ЭКРАН 9 — СБОРКА КОДА
+   ========================================================== */
+const HIDDEN_DIGITS_ANSWER = "300624";
+
+const digitsEntered = document.getElementById('digitsEntered');
+const digitsPool = document.getElementById('digitsPool');
+const digitsMessage = document.getElementById('digitsMessage');
+const digitsResetBtn = document.getElementById('digitsResetBtn');
+const digitsContinueBtn = document.getElementById('digitsContinueBtn');
+
+let digitsInitialized = false;
+let enteredSequence = [];
+
+function initDigitsScreen() {
+    if (digitsInitialized) return;
+    digitsInitialized = true;
+
+    renderDigitsEntered();
+    renderDigitsPool();
+    digitsResetBtn.addEventListener('click', resetDigitsEntry);
+}
+
+function renderDigitsEntered() {
+    digitsEntered.innerHTML = '';
+    for (let i = 0; i < HIDDEN_DIGITS_ANSWER.length; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'digit-slot';
+    slot.textContent = enteredSequence[i] || '';
+    digitsEntered.appendChild(slot);
+    }
+}
+
+function renderDigitsPool() {
+    digitsPool.innerHTML = '';
+
+  // берём цифры, найденные на экранах 2-8
+    let values = Object.values(foundDigits);
+
+  // ЗАГЛУШКА: если тестируешь экран 9 отдельно, не проходя экраны 2-8,
+  // раскомментируй строку ниже — получишь все 6 цифр сразу:
+  // values = ['3', '0', '0', '6', '2', '4'];
+
+    const shuffled = [...values];
+    shuffleArray(shuffled);
+
+    shuffled.forEach((value) => {
+    const tile = document.createElement('button');
+    tile.className = 'digit-tile';
+    tile.textContent = value;
+    tile.addEventListener('click', () => pickDigit(value, tile));
+    digitsPool.appendChild(tile);
+    });
+}
+
+function pickDigit(value, tileEl) {
+    if (tileEl.disabled || enteredSequence.length >= HIDDEN_DIGITS_ANSWER.length) return;
+
+    enteredSequence.push(value);
+    tileEl.disabled = true;
+    tileEl.classList.add('digit-used');
+    renderDigitsEntered();
+
+    if (enteredSequence.length === HIDDEN_DIGITS_ANSWER.length) {
+    checkDigitsAnswer();
+    }
+}
+
+function checkDigitsAnswer() {
+    const guess = enteredSequence.join('');
+    if (guess === HIDDEN_DIGITS_ANSWER) {
+    digitsMessage.textContent = "Верно! Ты запомнила нашу дату 💗";
+    digitsMessage.className = "captcha-message success";
+    digitsContinueBtn.classList.remove('hidden');
+    digitsResetBtn.classList.add('hidden');
+    fireConfettiBurst();
+    } else {
+    digitsMessage.textContent = "Порядок не тот... попробуй ещё раз";
+    digitsMessage.className = "captcha-message error";
+    setTimeout(resetDigitsEntry, 900);
+    }
+}
+
+function resetDigitsEntry() {
+    enteredSequence = [];
+    digitsMessage.textContent = '';
+    renderDigitsEntered();
+    renderDigitsPool();
+}
+
+/* ==========================================================
+    ЭКРАН 7 — ТАРО НАШЕЙ ДРУЖБЫ
+   ========================================================== */
+const tarotCards = document.querySelectorAll('.tarot-card');
+const tarotContinueBtn = document.getElementById('tarotContinueBtn');
+
+let tarotInitialized = false;
+let flippedCount = 0;
+
+function initTarot() {
+    if (tarotInitialized) return;
+    tarotInitialized = true;
+
+    tarotCards.forEach((card) => {
+    card.addEventListener('click', () => flipTarotCard(card));
+    });
+}
+
+function flipTarotCard(card) {
+    if (card.classList.contains('flipped')) return;
+
+    card.classList.add('flipped');
+    flippedCount++;
+
+    if (flippedCount === tarotCards.length) {
+    setTimeout(() => {
+        tarotContinueBtn.classList.remove('hidden');
+        fireConfettiBurst();
+    }, 500);
+    }
+}
+
+/* ==========================================================
+    ЭКРАН 8 — БЕСПРОИГРЫШНАЯ ЛОТЕРЕЯ (scratch-card на canvas)
+   ========================================================== */
+const scratchArea = document.getElementById('scratchArea');
+const scratchCanvas = document.getElementById('scratchCanvas');
+const scratchMessage = document.getElementById('scratchMessage');
+const scratchContinueBtn = document.getElementById('scratchContinueBtn');
+
+const SCRATCH_THRESHOLD = 0.5; // 50% стёртой поверхности достаточно для победы
+
+let scratchInitialized = false;
+let scratchCtx = null;
+let isScratching = false;
+let scratchRevealed = false;
+
+function initScratchCard() {
+    if (scratchInitialized) return;
+    scratchInitialized = true;
+
+    scratchCtx = scratchCanvas.getContext('2d');
+    drawScratchLayer();
+
+    window.addEventListener('resize', drawScratchLayer);
+
+    scratchCanvas.addEventListener('pointerdown', startScratching);
+    scratchCanvas.addEventListener('pointermove', doScratch);
+    scratchCanvas.addEventListener('pointerup', stopScratching);
+    scratchCanvas.addEventListener('pointerleave', stopScratching);
+}
+
+function drawScratchLayer() {
+    const rect = scratchArea.getBoundingClientRect();
+    scratchCanvas.width = rect.width;
+    scratchCanvas.height = rect.height;
+
+  // серебристый защитный слой (градиент, чтобы выглядело как настоящая монетка-скретч)
+    const gradient = scratchCtx.createLinearGradient(0, 0, rect.width, rect.height);
+    gradient.addColorStop(0, '#d8d8de');
+    gradient.addColorStop(0.5, '#b8b8c2');
+    gradient.addColorStop(1, '#d8d8de');
+    scratchCtx.fillStyle = gradient;
+    scratchCtx.fillRect(0, 0, rect.width, rect.height);
+
+    scratchCtx.font = '700 16px Fredoka, sans-serif';
+    scratchCtx.fillStyle = '#6b6b78';
+    scratchCtx.textAlign = 'center';
+    scratchCtx.fillText('✦ сотри меня ✦', rect.width / 2, rect.height / 2);
+}
+
+function startScratching(e) {
+    if (scratchRevealed) return;
+    isScratching = true;
+    scratchAt(e);
+}
+
+function doScratch(e) {
+    if (!isScratching || scratchRevealed) return;
+    scratchAt(e);
+}
+
+function stopScratching() {
+    if (!isScratching) return;
+    isScratching = false;
+    checkScratchProgress();
+}
+
+function scratchAt(e) {
+    const rect = scratchCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    scratchCtx.globalCompositeOperation = 'destination-out';
+    scratchCtx.beginPath();
+    scratchCtx.arc(x, y, 26, 0, Math.PI * 2);
+    scratchCtx.fill();
+}
+
+function checkScratchProgress() {
+    if (scratchRevealed) return;
+
+    const { width, height } = scratchCanvas;
+    const imageData = scratchCtx.getImageData(0, 0, width, height).data;
+
+    let transparentPixels = 0;
+  // проверяем каждый 4-й пиксель для скорости (alpha-канал)
+    for (let i = 3; i < imageData.length; i += 16) {
+    if (imageData[i] === 0) transparentPixels++;
+    }
+
+    const totalChecked = imageData.length / 16;
+    const scratchedRatio = transparentPixels / totalChecked;
+
+    if (scratchedRatio >= SCRATCH_THRESHOLD) {
+    revealScratchPrize();
+    }
+}
+
+function revealScratchPrize() {
+    scratchRevealed = true;
+
+  // плавно стираем весь оставшийся слой и запускаем анимацию победы
+    scratchCanvas.style.transition = 'opacity 0.6s ease';
+    scratchCanvas.style.opacity = '0';
+    setTimeout(() => { scratchCanvas.style.display = 'none'; }, 600);
+
+    scratchMessage.textContent = "Джекпот! Билет выигрышный 🎉";
+    scratchMessage.className = "captcha-message success";
+    scratchContinueBtn.classList.remove('hidden');
     fireConfettiBurst();
 }
