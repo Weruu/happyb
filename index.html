@@ -18,6 +18,25 @@
 
 <!-- декоративные плавающие лепестки на фоне -->
 <div class="petals" aria-hidden="true"></div>
+<div class="global-progress-bar" id="globalProgressBar">
+    <svg class="progress-path-svg" id="progressPathSvg" viewBox="0 0 1000 50" preserveAspectRatio="none">
+        <defs>
+            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#FF6FA5" />
+                <stop offset="100%" style="stop-color:#C9184A" />
+            </linearGradient>
+        </defs>
+        <path id="progressPathTrack" class="progress-path-track"
+                d="M 8 25 Q 130 4, 250 30 T 500 20 T 750 34 T 992 12" />
+        <path id="progressPathFill" class="progress-path-fill"
+                d="M 8 25 Q 130 4, 250 30 T 500 20 T 750 34 T 992 12" />
+    </svg>
+    <div class="progress-marker" id="progressMarker">
+        <!-- ЗАГЛУШКА: замени фон .progress-marker в CSS на фото подруги -->
+        <span>🙂</span>
+    </div>
+    <p class="progress-label" id="progressLabel">Просто знакомые</p>
+</div>
 
 <!-- ================= ЭКРАН 1: ПОДРУГО-КАПЧА ================= -->
 <section id="screen-1" class="screen active">
@@ -26,11 +45,7 @@
     <h1>Подтвердите статус Besties</h1>
     <p class="subtitle">Сдвиньте кусочек, чтобы собрать фото и доказать, что вы — настоящая лучшая подруга</p>
 
-    <div class="captcha-photo-wrap" id="captchaPhotoWrap">
-    <!-- ЗАГЛУШКА: замени на фон с вашим совместным фото -->
-        <div class="placeholder-photo">
-        📸<span>ЗАГЛУШКА ФОТО<br>(замени на вашу совместную)</span>
-        </div>
+    <div class="captcha-photo-wrap" id="captchaPhotoWrap" style="background-image: url('assets/captcha-photo.jpg');">
         <div class="puzzle-gap" id="puzzleGap"></div>
         <div class="puzzle-piece" id="puzzlePiece">🧩</div>
     </div>
@@ -49,12 +64,7 @@
     <div class="card card-wide quiz-card">
     <p class="eyebrow">Локальный экзамен</p>
     <h1>Тест на дружбу</h1>
-
-    <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
     <p class="progress-label" id="progressLabel">Просто знакомые</p>
-
     <div id="quizContainer" class="quiz-container"></div>
     </div>
 </section>
@@ -80,10 +90,10 @@
 <section id="screen-4" class="screen screen-full">
     <div class="card card-wide alphabet-card">
     <p class="eyebrow">Секретный шифр</p>
-    <h1>Алфавитка</h1>
+    <h1>Алфабетка</h1>
 
     <div class="alphabet-question-box" id="alphabetQuestion">
-        ЗАГЛУШКА: сюда вставь свой вопрос
+        Как называется группа в 
     </div>
 
     <div class="alphabet-display-box" id="alphabetDisplayBox"></div>
@@ -137,7 +147,6 @@
     <p class="subtitle">Посмотри на фото и выбери правильный вариант</p>
 
     <div class="picture-question-box">
-        <!-- ЗАГЛУШКА: замени src на свою фотографию -->
         <img id="pictureQuestionImg" src="assets/picture-question.jpg" alt="Вопрос по картинке">
     </div>
 
@@ -180,7 +189,7 @@
             </div>
             <div class="tarot-face tarot-front">
             <p class="tarot-name">Аркан: Отшиватель</p>
-            <p class="tarot-text">К тебе будут клеиться только краши, а все кринжовые челы отправятся в бан автоматически.</p>
+            <p class="tarot-text">К тебе будут клеиться только мальчики 10\10, а все кринжовые челы отправятся в бан автоматически и ты станешь №1 зайкой Дианы.</p>
             </div>
         </div>
         </div>
@@ -194,7 +203,7 @@
             </div>
             <div class="tarot-face tarot-front">
             <p class="tarot-name">Аркан: Дзен-мастер</p>
-            <p class="tarot-text">Стрессоустойчивость 80-го уровня, идеальные стрелки на глазах с первого раза даже утром в понедельник.</p>
+            <p class="tarot-text">Стрессоустойчивость 80-го уровня, даже перед лицом Головченко ты ни разу не заплачешь))) .</p>
             </div>
         </div>
         </div>
@@ -215,11 +224,8 @@
     <div class="scratch-area" id="scratchArea">
         <!-- то, что откроется под слоем -->
         <div class="scratch-prize">
-        <!-- ЗАГЛУШКА: замени на свою фотку -->
-        <div class="placeholder-photo scratch-prize-photo">
-            🎉<span>ЗАГЛУШКА ФОТО<br>(твоя самая кринжовая совместная)</span>
-        </div>
-        <p class="scratch-prize-text">Даже на этом фото ты 10/10! 💗<br><em>Купон: 1 бесплатное нытьё в 3 часа ночи с моей полной поддержкой</em></p>
+    <img class="scratch-prize-photo" src="assets/scratch-photo.jpg" alt="Наше фото">
+    <p class="scratch-prize-text">Даже на этом фото ты 10/10! 💗<br><em>Купон: 1 бесплатное нытьё в 3 часа ночи с моей полной поддержкой</em></p>
         </div>
 
         <!-- стираемый слой -->
@@ -236,7 +242,7 @@
     <div class="card card-wide digits-card">
     <p class="eyebrow">Собери код</p>
     <h1>Вспомни дату</h1>
-    <p class="subtitle">Нажимай на цифры в правильном порядке, чтобы восстановить дату нашего знакомства</p>
+    <p class="subtitle">Нажимай на цифры в правильном порядке, чтобы восстановить дату нашего первого сообщения в телеграмме</p>
 
     <div class="digits-entered" id="digitsEntered"></div>
     <div class="digits-pool" id="digitsPool"></div>
@@ -251,32 +257,65 @@
 <!-- ================= ЭКРАН: ФИНАЛ ================= -->
 <section id="screen-10" class="screen screen-full">
 
-    <!-- Фаза А: эпические титры -->
+<!-- Фаза А: эпические титры -->
     <div id="crawlWrap" class="crawl-wrap">
     <div class="crawl-fade-top"></div>
+
+    <!-- ЗАГЛУШКА: сюда JS подставит фото — настрой пути в MEMORY_PHOTOS_LEFT/RIGHT в script.js -->
+    <div class="crawl-photos crawl-photos-left" id="crawlPhotosLeft"></div>
+    <div class="crawl-photos crawl-photos-right" id="crawlPhotosRight"></div>
+
     <div class="crawl-perspective">
         <div class="crawl-text" id="crawlText">
         <p class="crawl-title">С ДНЁМ РОЖДЕНИЯ</p>
-        <p>Давным-давно, в одном очень далёком городе <em>(замени на ваш город/универ)</em>, встретились две легенды...</p>
-        <p>ЗАГЛУШКА: здесь будет краткая шуточная история о том, что вы вместе пережили за этот год — мемы, приключения, ночные созвоны и всё остальное.</p>
+
+        <p>Легенда гласит, что задолго до начала времён, когда звёзды ещё не знали своих имён, судьба сплетала невидимые нити между душами, которым суждено было встретиться.</p>
+
+        <p>Одна из этих нитей тянулась через года, через города, через тысячи случайностей — и привела в древние залы КПИ, где среди гула лекций и шёпота конспектов встретились две странницы.</p>
+
+        <p>Никто из них тогда не знал, что этот день станет началом легенды.</p>
+
+        <p>КПИ испытывал своих учеников без пощады. Бессонные ночи перед экзаменами обращались в бескрайние пустыни, которые нужно было пересечь на одном лишь кофе и упрямстве. Дедлайны вставали на пути огромными драконами, изрыгающими пламя из дат сдачи и требований преподавателей.</p>
+
+        <p>Но там, где другие отступали, она шла вперёд.</p>
+
+        <p>Они смотрели в глаза Головченку и просили у него пощады, но когда выходили из корпуса дружно поливали его говном. Они всегда были рядом и все испытания были им по плечу(сила дружбы сукааа)</p>
+
+        <p>Сквозь метель дедлайнов, сквозь туманы недосыпа, сквозь горы методичек она несла свой факел не потухшим. И рядом с ней всегда находился кто-то, кто держал свой факел так же крепко — чтобы не пришлось идти в темноте одной.</p>
+
+        <p>Вместе они прошли через залы Первого Курса, где всё было незнакомым и пугающим. Через лабиринты Сессии, где карта менялась каждый час. Через башню Курсовых Работ, которая, казалось, не имела вершины.</p>
+
+        <p>Но эта история — не только о трудностях. Она о том, кем стала героиня этой саги.</p>
+
+        <p>О той, что умеет зажечь комнату одной улыбкой. О той, чья доброта не имеет дна, а сила духа не знает границ. О той, кто выслушает в три часа ночи и не осудит(ну или осудит), кто разделит последний кусок пиццы и последнюю тайну.</p>
+
+        <p>Многие пересекали её путь. И почти каждый, кто узнавал её по-настоящему, оставался очарован её светом — тем особенным сиянием, которое невозможно подделать и невозможно забыть.</p>
+
+        <p>Мудрецы поляны шептались между собой: такие души рождаются редко. Души, которые способны одновременно быть опорой для друзей, бунтарём против несправедливости и мечтателем, верящим в невозможное.</p>
+
+        <p>Пророчество гласит: всё, за что она возьмётся всерьёз, покорится ей. Горы дипломов согнутся перед её упорством. Крепости трудностей падут перед её характером. А будущее, каким бы туманным оно ни казалось сегодня, развернётся перед ней ковром из её собственных побед.</p>
+
+        <p>Потому что она из тех, кто не просто мечтает — она идёт и берёт то, что задумала.</p>
+
         <p>Она прошла капчу. Она сдала экзамен. Она собрала воспоминание по кусочкам.</p>
-        <p>Она доказала, что достойна называться Лучшей Подругой.</p>
+
+        <p>Она доказала, что достойна называться Лучшей Подругой — и куда более того: человеком, ради которого стоит проходить любые испытания.</p>
+
+        <p class="crawl-title">С этого дня начинается новая глава её легенды.</p>
+
         <p class="crawl-title">И теперь для неё открывается новый уровень...</p>
         </div>
     </div>
     <button id="skipCrawlBtn" class="btn btn-ghost skip-btn">Пропустить ⏭</button>
     </div>
-
     <!-- Фаза Б: сертификат -->
     <div id="certificateWrap" class="certificate-wrap hidden">
     <p class="eyebrow">Магия активирована</p>
     <h1>С Днём Рождения! 🎉</h1>
-    <div class="certificate" id="certificateBtn" tabindex="0" role="button">
-        <!-- ЗАГЛУШКА: замени на картинку сертификата -->
-        <div class="placeholder-photo certificate-placeholder">
-        🏆<span>ЗАГЛУШКА<br>Официальный Сертификат<br>Лучшей Подруги</span>
-        </div>
-        <p class="certificate-cta">Нажми на меня, чтобы активировать магию ✨</p>
+    <div class="certificate" id="certificateBtn">
+        <!-- ЗАГЛУШКА: замени src на свою картинку сертификата -->
+        <img class="certificate-photo" src="assets/certificate.jpg" alt="Сертификат Лучшей Подруги">
+        <p class="certificate-cta">Официальный Сертификат Лучшей Подруги ✨</p>
     </div>
     </div>
 

@@ -1,10 +1,88 @@
 /* ==========================================================
     НАСТРОЙКИ — здесь легко всё поменять под себя
    ========================================================== */
-const FINAL_LINK = "https://example.com/sertificate.pdf"; // ЗАГЛУШКА: ссылка на страницу/pdf с сертификатом на пирсинг
-
+const PUZZLE_IMAGE = "assets/puzzle-photo.jpg"; // ЗАГЛУШКА: путь к фото для экрана "Собери воспоминание"
 const CAPTCHA_TARGET = 68;   // % позиции, где должен оказаться кусочек пазла (совпадает с .puzzle-gap в CSS)
 const CAPTCHA_TOLERANCE = 4; // допустимая погрешность
+
+// ЗАГЛУШКА: вставь сюда пути к совместным фото — будут пролетать слева и справа во время титров
+const MEMORY_PHOTOS_LEFT = [
+    'assets/memories/1.jpg',
+    'assets/memories/2.jpg',
+    'assets/memories/3.jpg',
+    'assets/memories/4.jpg',
+    'assets/memories/5.jpg',
+    'assets/memories/6.jpg',
+    'assets/memories/7.jpg',
+    'assets/memories/8.jpg',
+    'assets/memories/9.jpg',
+    'assets/memories/10.jpg',
+    'assets/memories/11.jpg',
+    'assets/memories/12.jpg',
+    'assets/memories/13.jpg',
+    'assets/memories/14.jpg',
+    'assets/memories/15.jpg',
+    'assets/memories/16.jpg',
+    'assets/memories/17.jpg',
+    'assets/memories/18.jpg',
+    'assets/memories/19.jpg',
+    'assets/memories/20.jpg',
+    'assets/memories/21.jpg',
+    'assets/memories/22.jpg',
+    'assets/memories/23.jpg',
+    'assets/memories/24.jpg',
+    'assets/memories/25.jpg',
+    'assets/memories/26.jpg',
+    'assets/memories/27.jpg',
+    'assets/memories/28.jpg',
+    'assets/memories/29.jpg',
+    'assets/memories/30.jpg',
+    'assets/memories/31.jpg',
+    'assets/memories/32.jpg',
+    'assets/memories/33.jpg',
+    'assets/memories/34.jpg',
+    'assets/memories/35.jpg'
+];
+const MEMORY_PHOTOS_RIGHT = [
+    'assets/memories/36.jpg',
+    'assets/memories/37.jpg',
+    'assets/memories/38.jpg',
+    'assets/memories/39.jpg',
+    'assets/memories/40.jpg',
+    'assets/memories/41.jpg',
+    'assets/memories/42.jpg',
+    'assets/memories/43.jpg',
+    'assets/memories/44.jpg',
+    'assets/memories/45.jpg',
+    'assets/memories/46.jpg',
+    'assets/memories/47.jpg',
+    'assets/memories/48.jpg',
+    'assets/memories/49.jpg',
+    'assets/memories/50.jpg',
+    'assets/memories/51.jpg',
+    'assets/memories/52.jpg',
+    'assets/memories/53.jpg',
+    'assets/memories/54.jpg',
+    'assets/memories/55.jpg',
+    'assets/memories/56.jpg',
+    'assets/memories/57.jpg',
+    'assets/memories/58.jpg',
+    'assets/memories/59.jpg',
+    'assets/memories/60.jpg',
+    'assets/memories/61.jpg',
+    'assets/memories/62.jpg',
+    'assets/memories/63.jpg',
+    'assets/memories/64.jpg',
+    'assets/memories/65.jpg',
+    'assets/memories/66.jpg',
+    'assets/memories/67.jpg',
+    'assets/memories/68.jpg',
+    'assets/memories/69.jpg',
+    'assets/memories/70.jpg',
+];
+
+// должно совпадать с длительностью анимации .crawl-text (animation: crawl ...s) в CSS
+const CRAWL_DURATION_SEC = 180;
 
 const FAIL_JOKES = [
     "Доступ запрещён. Вы точно знаете именинницу?",
@@ -16,8 +94,8 @@ const FAIL_JOKES = [
 // ЗАГЛУШКА: замени вопросы, ответы и флаги под свою историю
 const QUIZ_QUESTIONS = [
     {
-    question: "Что мы закажем поесть в 2 часа ночи?",
-    options: ["Суши", "Шаурму", "Пиццу", "Ничего, мы спим как нормальные люди"],
+    question: "Что мы закажем поесть на утро после пьянки?",
+    options: ["Суши", "Ничего, мы за пп", "Мак", "Мы приготовим что-то сами"],
     correct: 2,
     timer: 15
     },
@@ -25,32 +103,52 @@ const QUIZ_QUESTIONS = [
     question: "Кто из нас дольше собирается перед выходом?",
     options: ["Я", "Ты", "Мы обе одинаково долго"],
     correct: 1,
-    runaway: 1 // индекс варианта, который будет убегать от курсора
+    runawayIndices: [0, 2] // эти варианты убегают от курсора и их нельзя нажать
     },
     {
     question: "После какого события было записано это голосовое?",
-    options: ["После контрольной", "После дня рождения", "После того самого похода", "Никто не помнит"],
-    correct: 2,
-    audio: true // ЗАГЛУШКА: вставь свой аудиофайл ниже в разметке рендера
+    options: ["25.11.2006", "10.07.07", "18.11.2007", "01.11.2024"],
+    correct: 3,
+    audio: true
     },
     {
-    question: "Сколько раз мы обещали лечь спать пораньше и не сделали этого?",
-    options: ["1-2 раза", "Каждый день", "Ни разу — мы держим слово", "Со счёту сбились"],
-    correct: 1
+    question: "Что первым делом мы сделаем в нашей girl's trip?",
+    options: [
+        "Разосрёмся из-за того что кто-то долго собирается",
+        "Потеряемся на местности и не найдём отель",
+        "Наебенимся в баре в вырвеглазных париках",
+        "Побежим какать"
+    ],
+    correct: 2
     }
 ];
 
 /* ==========================================================
         ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
    ========================================================== */
+const SCREEN_TRANSITION_MS = 450;
+
 function nextScreen(screenNumber) {
     const currentActive = document.querySelector('.screen.active');
-    if (currentActive) currentActive.classList.remove('active');
-
     const target = document.getElementById(`screen-${screenNumber}`);
-    if (target) target.classList.add('active');
+    if (!target || currentActive === target) return;
+
+    if (currentActive) {
+    currentActive.classList.remove('screen-entered');
+    currentActive.classList.add('screen-leaving');
+    setTimeout(() => {
+        currentActive.classList.remove('active', 'screen-leaving');
+    }, SCREEN_TRANSITION_MS);
+    }
+
+    target.classList.add('active');
+    target.classList.remove('screen-entered');
+  // форсируем перерасчёт стилей, чтобы фейд сыграл с нуля, а не сразу со 100%
+    void target.offsetWidth;
+    requestAnimationFrame(() => target.classList.add('screen-entered'));
 
     spawnDigitForScreen(screenNumber);
+    updateGlobalProgress(screenNumber);
 
     if (screenNumber === 2) startQuiz();
     if (screenNumber === 3) initPuzzle();
@@ -62,6 +160,14 @@ function nextScreen(screenNumber) {
     if (screenNumber === 9) initDigitsScreen();
     if (screenNumber === 10) startFinale();
 }
+
+// первый экран уже открыт при загрузке страницы — нужно его тоже плавно проявить
+document.addEventListener('DOMContentLoaded', () => {
+    const initialActive = document.querySelector('.screen.active');
+    if (initialActive) {
+    requestAnimationFrame(() => initialActive.classList.add('screen-entered'));
+    }
+});
 
 
 /* ==========================================================
@@ -120,14 +226,64 @@ function playDing() {
     osc.stop(ctx.currentTime + 0.5);
   } catch (e) { /* тихо игнорируем, если звук недоступен */ }
 }
+// короткий "тик" — усиливает напряжение по мере убывания таймера
+function playTick(frequency) {
+    try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = frequency;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch (e) { /* тихо игнорируем, если звук недоступен */ }
+}
 
 /* ==========================================================
     ЭКРАН 2 — ЭКЗАМЕН НА ДРУЖБУ
    ========================================================== */
 const quizContainer = document.getElementById('quizContainer');
-const progressFill = document.getElementById('progressFill');
+const globalProgressBar = document.getElementById('globalProgressBar');
+const progressPathFill = document.getElementById('progressPathFill');
+const progressMarker = document.getElementById('progressMarker');
 const progressLabel = document.getElementById('progressLabel');
 
+const progressPathLength = progressPathFill.getTotalLength();
+progressPathFill.style.strokeDasharray = progressPathLength;
+progressPathFill.style.strokeDashoffset = progressPathLength;
+
+// экраны, которые считаются частью "теста" — шкала растягивается на все они
+const JOURNEY_SCREENS = [2, 3, 4, 5, 6, 7, 8, 9];
+let currentGlobalRatio = 0;
+
+function updateGlobalProgress(screenNumber, subRatio = 0) {
+    const stepIndex = JOURNEY_SCREENS.indexOf(screenNumber);
+
+    if (stepIndex === -1) {
+    // экран 1 — шкала ещё не показана; экран 10 — шкала заполняется полностью и прячется
+    globalProgressBar.classList.remove('visible');
+    if (screenNumber === 10) {
+        currentGlobalRatio = 1;
+        moveProgressAlongPath(1);
+        progressLabel.textContent = "Соулмейты 💗";
+    }
+    return;
+    }
+
+    globalProgressBar.classList.add('visible');
+    const ratio = (stepIndex + subRatio) / JOURNEY_SCREENS.length;
+    currentGlobalRatio = ratio;
+    moveProgressAlongPath(ratio);
+
+    const labelIndex = Math.min(
+    Math.floor(ratio * (PROGRESS_LABELS.length - 1)),
+    PROGRESS_LABELS.length - 1
+    );
+    progressLabel.textContent = PROGRESS_LABELS[labelIndex];
+}
 const PROGRESS_LABELS = ["Просто знакомые", "Приятельницы", "Хорошие подруги", "Лучшие подруги", "Соулмейты"];
 
 let currentQuestionIndex = 0;
@@ -140,16 +296,31 @@ function startQuiz() {
     currentQuestionIndex = 0;
     renderQuestion();
 }
-
 function updateProgress() {
-  const pct = (currentQuestionIndex / QUIZ_QUESTIONS.length) * 100;
-    progressFill.style.width = pct + '%';
-    const labelIndex = Math.min(
-    Math.floor((currentQuestionIndex / QUIZ_QUESTIONS.length) * (PROGRESS_LABELS.length - 1)),
-    PROGRESS_LABELS.length - 1
-    );
-    progressLabel.textContent = PROGRESS_LABELS[labelIndex];
+  // прогресс внутри квиза — лишь первый из восьми шагов общего пути
+    const subRatio = currentQuestionIndex / QUIZ_QUESTIONS.length;
+    updateGlobalProgress(2, subRatio);
 }
+
+function moveProgressAlongPath(ratio) {
+    const clamped = Math.max(0, Math.min(1, ratio));
+
+  // закрашиваем пройденную часть тропинки
+    progressPathFill.style.strokeDashoffset = progressPathLength * (1 - clamped);
+
+  // двигаем "голову подруги" вдоль кривой
+    const point = progressPathFill.getPointAtLength(progressPathLength * clamped);
+    const svgRect = document.getElementById('progressPathSvg').getBoundingClientRect();
+    const scaleX = svgRect.width / 1000;
+    const scaleY = svgRect.height / 50;
+
+    progressMarker.style.left = (point.x * scaleX) + 'px';
+    progressMarker.style.top = (point.y * scaleY) + 'px';
+}
+
+window.addEventListener('resize', () => {
+    moveProgressAlongPath(currentGlobalRatio);
+});
 
 function renderQuestion() {
     clearInterval(timerInterval);
@@ -165,8 +336,7 @@ function renderQuestion() {
     html += `<div class="quiz-timer" id="quizTimer">⏱ ${q.timer} сек</div>`;
     }
     if (q.audio) {
-    // ЗАГЛУШКА: замени src на свой аудиофайл, например assets/voice.mp3
-    html += `<audio class="quiz-audio" controls src=""></audio><p style="font-size:0.8rem;opacity:0.6">ЗАГЛУШКА: вставь сюда аудиофайл (src у &lt;audio&gt;)</p>`;
+    html += `<audio class="quiz-audio" controls preload="auto" src="assets/voice.m4a" type="audio/mp4"></audio>`;
     }
     html += `<div class="quiz-options" id="quizOptions"></div>`;
     wrap.innerHTML = html;
@@ -181,7 +351,7 @@ function renderQuestion() {
         btn.textContent = optionText;
         btn.addEventListener('click', () => handleAnswer(index, btn));
 
-        if (q.runaway === index) {
+        if (q.runawayIndices && q.runawayIndices.includes(index)) {
             btn.classList.add('runaway');
             makeButtonRunaway(btn, optionsWrap);
         }
@@ -195,13 +365,25 @@ function renderQuestion() {
     const timerEl = document.getElementById('quizTimer');
     timerInterval = setInterval(() => {
         timeLeft -= 1;
-        if (timerEl) timerEl.textContent = `⏱ ${Math.max(timeLeft, 0)} сек`;
+        if (timerEl) {
+        timerEl.textContent = `⏱ ${Math.max(timeLeft, 0)} сек`;
+        timerEl.classList.remove('timer-warning', 'timer-danger');
+        if (timeLeft <= 3) {
+            timerEl.classList.add('timer-danger');
+            playTick(880);
+        } else if (timeLeft <= 7) {
+            timerEl.classList.add('timer-warning');
+            playTick(500);
+        }
+        }
         if (timeLeft <= 0) clearInterval(timerInterval);
     }, 1000);
     }
 }
 
 function handleAnswer(index, btnEl) {
+    if (btnEl.classList.contains('runaway')) return; // такие ответы нельзя выбрать вообще
+
     const q = QUIZ_QUESTIONS[currentQuestionIndex];
     if (index === q.correct) {
     btnEl.classList.add('correct-flash');
@@ -221,9 +403,7 @@ function handleAnswer(index, btnEl) {
 }
 
 function finishQuiz() {
-    updateProgress();
-    progressFill.style.width = '100%';
-    progressLabel.textContent = "Соулмейты 💗";
+    updateGlobalProgress(2, 1); // первый шаг из восьми пройден полностью
     quizContainer.innerHTML = `
     <p style="font-weight:700; margin-bottom: 6px;">Экзамен сдан на отлично! 🎓</p>
     <p style="opacity:0.75; margin-bottom: 18px;">Осталось последнее испытание...</p>
@@ -231,17 +411,9 @@ function finishQuiz() {
     `;
 }
 
-// логика "убегающей" кнопки
-let runawayDodgeCount = {};
+// логика "убегающей" кнопки — убегает всегда, без ограничения по числу побегов
 function makeButtonRunaway(btn, container) {
-    const key = btn.textContent;
-    runawayDodgeCount[key] = 0;
-  const MAX_DODGES = 4; // после нескольких побегов кнопка "устаёт" и её можно поймать
-
-    btn.addEventListener('mouseenter', () => {
-    if (runawayDodgeCount[key] >= MAX_DODGES) return;
-    runawayDodgeCount[key]++;
-
+    function dodge() {
     const containerRect = container.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
     const maxX = containerRect.width - btnRect.width;
@@ -253,13 +425,16 @@ function makeButtonRunaway(btn, container) {
     btn.style.position = 'absolute';
     btn.style.left = randX + 'px';
     btn.style.top = randY + 'px';
-    });
+    }
+
+    btn.addEventListener('mouseenter', dodge);
+    btn.addEventListener('touchstart', dodge, { passive: true }); // на телефоне убегает от касания
 }
 
 /* ==========================================================
         ЭКРАН 3 — ПАЗЛ ВОСПОМИНАНИЙ (Pointer Events — работает и мышью, и пальцем)
    ========================================================== */
-const GRID_SIZE = 3; // 3x3 = 9 деталей
+const GRID_SIZE = 4; // 4x4 = 16 деталей
 const puzzleBoard = document.getElementById('puzzleBoard');
 const puzzlePiecesWrap = document.getElementById('puzzlePieces');
 const puzzleMessage = document.getElementById('puzzleMessage');
@@ -282,9 +457,6 @@ function initPuzzle() {
     const slot = document.createElement('div');
     slot.className = 'puzzle-slot';
     slot.dataset.index = i;
-    // ЗАГЛУШКА: подсказка-номер видна только пока нет реального фото —
-    // когда вставишь фрагменты фотографии, подсказка не нужна, убери строку ниже
-    slot.innerHTML = `<span class="slot-hint">${i + 1}</span>`;
     puzzleBoard.appendChild(slot);
     }
 
@@ -296,8 +468,15 @@ function initPuzzle() {
     const tile = document.createElement('div');
     tile.className = 'puzzle-piece-tile';
     tile.dataset.correctIndex = correctIndex;
-    // ЗАГЛУШКА: замени номер на фрагмент реальной фотографии (background-image + background-position)
-    tile.textContent = correctIndex + 1;
+
+    const row = Math.floor(correctIndex / GRID_SIZE);
+    const col = correctIndex % GRID_SIZE;
+    const posX = (col / (GRID_SIZE - 1)) * 100;
+    const posY = (row / (GRID_SIZE - 1)) * 100;
+
+    tile.style.backgroundImage = `url('${PUZZLE_IMAGE}')`;
+    tile.style.backgroundSize = `${GRID_SIZE * 100}% ${GRID_SIZE * 100}%`;
+    tile.style.backgroundPosition = `${posX}% ${posY}%`;
 
     attachDragEvents(tile);
     puzzlePiecesWrap.appendChild(tile);
@@ -423,6 +602,8 @@ function startFinale() {
     if (finaleStarted) return;
     finaleStarted = true;
 
+    spawnCrawlPhotos();
+
     crawlText.addEventListener('animationend', showCertificate);
     skipCrawlBtn.addEventListener('click', showCertificate);
 }
@@ -430,6 +611,12 @@ function startFinale() {
 function showCertificate() {
     crawlWrap.classList.add('hidden');
     certificateWrap.classList.remove('hidden');
+
+    // requestAnimationFrame, чтобы браузер успел применить hidden->visible до старта анимации
+    requestAnimationFrame(() => {
+    certificateWrap.classList.add('cert-animate-in');
+    });
+
     startAmbientConfetti();
 }
 
@@ -454,66 +641,75 @@ function fireConfettiBurst() {
     });
 }
 
-certificateBtn.addEventListener('click', activateCertificate);
-certificateBtn.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') activateCertificate();
-});
 
-function activateCertificate() {
-    certificateBtn.style.pointerEvents = 'none';
-    fireConfettiBurst();
-    setTimeout(() => fireConfettiBurst(), 300);
-
-    setTimeout(() => {
-        window.location.href = FINAL_LINK;
-    }, 1200);
+function spawnCrawlPhotos() {
+    spawnPhotoColumn(document.getElementById('crawlPhotosLeft'), MEMORY_PHOTOS_LEFT);
+    spawnPhotoColumn(document.getElementById('crawlPhotosRight'), MEMORY_PHOTOS_RIGHT);
 }
 
+function spawnPhotoColumn(container, photos) {
+    if (!container || container.dataset.spawned) return;
+    container.dataset.spawned = 'true';
+
+    const slice = CRAWL_DURATION_SEC / photos.length;
+
+    photos.forEach((src, i) => {
+    const img = document.createElement('img');
+    img.className = 'crawl-photo';
+    img.src = src;
+    img.alt = 'Наше воспоминание';
+    img.onerror = function () { this.remove(); }; // если фото нет — просто не показываем
+
+    const delay = i * slice + Math.random() * (slice * 0.3);
+    const duration = slice * 1.6; // немного длиннее слайса, чтобы фото красиво перекрывались
+
+    img.style.animationDelay = delay + 's';
+    img.style.animationDuration = duration + 's';
+
+    container.appendChild(img);
+    });
+}
 /* ==========================================================
     ЭКРАН 4 — АЛФАВИТКА
    ========================================================== */
 
 // ЗАГЛУШКА: впиши пути к своим фото букв украинского алфавита
 const ALPHABET_IMAGES = {
-    'а': 'assets/alphabet/a.jpg',
-    'б': 'assets/alphabet/b.jpg',
-    'в': 'assets/alphabet/v.jpg',
-    'г': 'assets/alphabet/g.jpg',
-    'ґ': 'assets/alphabet/g2.jpg',
-    'д': 'assets/alphabet/d.jpg',
-    'е': 'assets/alphabet/e.jpg',
-    'є': 'assets/alphabet/ye.jpg',
-    'ж': 'assets/alphabet/zh.jpg',
-    'з': 'assets/alphabet/z.jpg',
-    'и': 'assets/alphabet/y.jpg',
-    'і': 'assets/alphabet/i.jpg',
-    'ї': 'assets/alphabet/yi.jpg',
-    'й': 'assets/alphabet/i-short.jpg',
-    'к': 'assets/alphabet/k.jpg',
-    'л': 'assets/alphabet/l.jpg',
-    'м': 'assets/alphabet/m.jpg',
-    'н': 'assets/alphabet/n.jpg',
-    'о': 'assets/alphabet/o.jpg',
-    'п': 'assets/alphabet/p.jpg',
-    'р': 'assets/alphabet/r.jpg',
-    'с': 'assets/alphabet/s.jpg',
-    'т': 'assets/alphabet/t.jpg',
-    'у': 'assets/alphabet/u.jpg',
-    'ф': 'assets/alphabet/f.jpg',
-    'х': 'assets/alphabet/h.jpg',
-    'ц': 'assets/alphabet/ts.jpg',
-    'ч': 'assets/alphabet/ch.jpg',
-    'ш': 'assets/alphabet/sh.jpg',
-    'щ': 'assets/alphabet/shch.jpg',
-    'ь': 'assets/alphabet/soft.jpg',
-    'ю': 'assets/alphabet/yu.jpg',
-    'я': 'assets/alphabet/ya.jpg',
-    "'": 'assets/alphabet/apostrophe.jpg'
+    'а': 'assets/alphabet/stickerА.webp',
+    'б': 'assets/alphabet/stickerБ.webp',
+    'в': 'assets/alphabet/stickerВ.webp',
+    'г': 'assets/alphabet/stickerГ.webp',
+    'д': 'assets/alphabet/stickerД.webp',
+    'е': 'assets/alphabet/stickerЕ.webp',
+    'є': 'assets/alphabet/stickerЄ.webp',
+    'ж': 'assets/alphabet/stickerЖ.webp',
+    'з': 'assets/alphabet/stickerЗ.webp',
+    'и': 'assets/alphabet/stickerИ.webp',
+    'і': 'assets/alphabet/stickerІ.webp',
+    'к': 'assets/alphabet/stickerК.webp',
+    'л': 'assets/alphabet/stickerЛ.webp',
+    'м': 'assets/alphabet/stickerМ.webp',
+    'н': 'assets/alphabet/stickerН.webp',
+    'о': 'assets/alphabet/stickerО.webp',
+    'п': 'assets/alphabet/stickerП.webp',
+    'р': 'assets/alphabet/stickerР.webp',
+    'с': 'assets/alphabet/stickerС.webp',
+    'т': 'assets/alphabet/stickerТ.webp',
+    'у': 'assets/alphabet/stickerУ.webp',
+    'ф': 'assets/alphabet/stickerФ.webp',
+    'х': 'assets/alphabet/stickerХ.webp',
+    'ц': 'assets/alphabet/stickerЦ.webp',
+    'ч': 'assets/alphabet/stickerЧ.webp',
+    'ш': 'assets/alphabet/stickerШ.webp',
+    'щ': 'assets/alphabet/stickerЩ.webp',
+    'ь': 'assets/alphabet/stickerЬ.webp',
+    'ю': 'assets/alphabet/stickerЮ.webp',
+    'я': 'assets/alphabet/stickerЯ.webp',
 };
 
 // ЗАГЛУШКА: свой вопрос и правильный ответ (ответ — маленькими буквами)
-const ALPHABET_QUESTION = "Впиши сюда свой вопрос";
-const ALPHABET_ANSWER = "правильный ответ";
+const ALPHABET_QUESTION = "Как называется группа в тг, в которой состою я, ты и Аня и она названа в честь парня быашей подруги Ани?(с маленькой буквы, с пробелом, на украинском языке)";
+const ALPHABET_ANSWER = "арбітраж трафіка шлюх";
 
 const alphabetDisplayBox = document.getElementById('alphabetDisplayBox');
 const alphabetInput = document.getElementById('alphabetInput');
@@ -756,10 +952,10 @@ function onPeopleSortComplete() {
 
 // ЗАГЛУШКА: свои варианты ответа, correct — индекс правильного (с нуля)
 const PICTURE_OPTIONS = [
-    "Вариант ответа 1",
-    "Вариант ответа 2",
-    "Вариант ответа 3",
-    "Вариант ответа 4"
+    "Девочки слетели с катушек перед сессией и дохуя уверовали",
+    "Какое-то мракобесие",
+    "Ночь перед экзаменом",
+    "Кто эти люди?"
 ];
 const PICTURE_CORRECT_INDEX = 0;
 
@@ -837,22 +1033,36 @@ function createHiddenDigit(screenSelector, instanceId, digitValue, withHint) {
     digitEl.style.top = top + '%';
     digitEl.style.left = left + '%';
 
+    screen.appendChild(digitEl);
+
     let hintEl = null;
     if (withHint) {
     hintEl = document.createElement('div');
     hintEl.className = 'hidden-digit-hint';
     hintEl.id = 'hint-' + instanceId;
-    hintEl.innerHTML = '↖ будь внимательна на КАЖДОМ слайде';
-    hintEl.style.top = top + '%';
-    hintEl.style.left = Math.min(left + 6, 60) + '%';
+    hintEl.innerHTML = '↓ будь внимательна на КАЖДОМ слайде';
     screen.appendChild(hintEl);
+
+    // ставим подсказку строго над цифрой по её РЕАЛЬНЫМ координатам на экране
+    positionHintNearDigit(hintEl, digitEl, screen);
 
     // подсказка сама плавно исчезает через 5 секунд, если её не заметили
     setTimeout(() => hideHint(hintEl), 5000);
     }
 
     digitEl.addEventListener('click', () => collectDigit(digitEl, instanceId, digitValue, hintEl));
-    screen.appendChild(digitEl);
+}
+
+function positionHintNearDigit(hintEl, digitEl, screen) {
+    const screenRect = screen.getBoundingClientRect();
+    const digitRect = digitEl.getBoundingClientRect();
+
+    const topPct = ((digitRect.top - screenRect.top - 34) / screenRect.height) * 100;
+    const leftPct = ((digitRect.left - screenRect.left + digitRect.width / 2) / screenRect.width) * 100;
+
+    hintEl.style.top = Math.max(2, topPct) + '%';
+    hintEl.style.left = leftPct + '%';
+    hintEl.style.transform = 'translateX(-50%)';
 }
 
 function hideHint(hintEl) {
