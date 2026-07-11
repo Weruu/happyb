@@ -31,10 +31,7 @@
         <path id="progressPathFill" class="progress-path-fill"
                 d="M 8 25 Q 130 4, 250 30 T 500 20 T 750 34 T 992 12" />
     </svg>
-    <div class="progress-marker" id="progressMarker">
-        <!-- ЗАГЛУШКА: замени фон .progress-marker в CSS на фото подруги -->
-        <span>🙂</span>
-    </div>
+    <div class="progress-marker" id="progressMarker"></div>
     <p class="progress-label" id="progressLabel">Просто знакомые</p>
 </div>
 
@@ -47,7 +44,7 @@
 
     <div class="captcha-photo-wrap" id="captchaPhotoWrap" style="background-image: url('assets/captcha-photo.jpg');">
         <div class="puzzle-gap" id="puzzleGap"></div>
-        <div class="puzzle-piece" id="puzzlePiece">🧩</div>
+        <div class="puzzle-piece" id="puzzlePiece"></div>
     </div>
 
     <input type="range" min="0" max="100" value="0" id="captchaSlider" class="captcha-slider">
@@ -64,7 +61,6 @@
     <div class="card card-wide quiz-card">
     <p class="eyebrow">Локальный экзамен</p>
     <h1>Тест на дружбу</h1>
-    <p class="progress-label" id="progressLabel">Просто знакомые</p>
     <div id="quizContainer" class="quiz-container"></div>
     </div>
 </section>
@@ -259,11 +255,14 @@
 
 <!-- Фаза А: эпические титры -->
     <div id="crawlWrap" class="crawl-wrap">
+    <div class="starfield" aria-hidden="true"></div>
     <div class="crawl-fade-top"></div>
 
     <!-- ЗАГЛУШКА: сюда JS подставит фото — настрой пути в MEMORY_PHOTOS_LEFT/RIGHT в script.js -->
-    <div class="crawl-photos crawl-photos-left" id="crawlPhotosLeft"></div>
-    <div class="crawl-photos crawl-photos-right" id="crawlPhotosRight"></div>
+    <div class="crawl-photos crawl-photos-left-1" id="crawlPhotosLeft1"></div>
+    <div class="crawl-photos crawl-photos-left-2" id="crawlPhotosLeft2"></div>
+    <div class="crawl-photos crawl-photos-right-1" id="crawlPhotosRight1"></div>
+    <div class="crawl-photos crawl-photos-right-2" id="crawlPhotosRight2"></div>
 
     <div class="crawl-perspective">
         <div class="crawl-text" id="crawlText">
@@ -306,7 +305,7 @@
         <p class="crawl-title">И теперь для неё открывается новый уровень...</p>
         </div>
     </div>
-    <button id="skipCrawlBtn" class="btn btn-ghost skip-btn">Пропустить ⏭</button>
+    <button id="skipCrawlBtn" class="btn btn-ghost skip-btn">Перейти к подарку ⏭</button>
     </div>
     <!-- Фаза Б: сертификат -->
     <div id="certificateWrap" class="certificate-wrap hidden">

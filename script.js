@@ -175,13 +175,57 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================================== */
 const captchaSlider = document.getElementById('captchaSlider');
 const puzzlePiece = document.getElementById('puzzlePiece');
+const puzzleGap = document.getElementById('puzzleGap');
+const captchaPhotoWrap = document.getElementById('captchaPhotoWrap');
 const captchaMessage = document.getElementById('captchaMessage');
 const captchaContinueBtn = document.getElementById('captchaContinueBtn');
 
 let captchaSolved = false;
+const PIECE_SIZE = 52; // должно совпадать с width/height у .puzzle-piece в CSS
+
+// единая формула: % слайдера -> px-позиция ЦЕНТРА кусочка, зажатая внутри контейнера
+function centerPxFor(percent) {
+    const wrapWidth = captchaPhotoWrap.clientWidth;
+    const half = PIECE_SIZE / 2;
+    const usablePx = wrapWidth - PIECE_SIZE; // сколько px реально можно проехать
+    return half + (percent / 100) * usablePx;
+}
+
+// у .puzzle-piece нет translateX, поэтому left = левый край = центр - половина ширины
+function setPiecePosition(percent) {
+    const center = centerPxFor(percent);
+    puzzlePiece.style.left = (center - PIECE_SIZE / 2) + 'px';
+}
+
+// у .puzzle-gap есть translate(-50%, -50%), поэтому left = центр напрямую
+function positionGap() {
+    puzzleGap.style.left = centerPxFor(CAPTCHA_TARGET) + 'px';
+}
+
+// подгоняет фон кусочка под тот же кусок фото, что находится в проёме
+function syncPieceBackground() {
+    const bg = getComputedStyle(captchaPhotoWrap).backgroundImage;
+    const wrapWidth = captchaPhotoWrap.clientWidth;
+    const wrapHeight = captchaPhotoWrap.clientHeight;
+    const gapCenterX = centerPxFor(CAPTCHA_TARGET); // та же формула, что и у самого проёма
+    const gapCenterY = wrapHeight * 0.5;
+
+    positionGap();
+
+    [puzzleGap, puzzlePiece].forEach(el => {
+    el.style.backgroundImage = bg;
+    el.style.backgroundSize = wrapWidth + 'px ' + wrapHeight + 'px';
+    el.style.backgroundPosition =
+        -(gapCenterX - PIECE_SIZE / 2) + 'px ' +
+        -(gapCenterY - PIECE_SIZE / 2) + 'px';
+    });
+}
+
+window.addEventListener('load', syncPieceBackground);
+window.addEventListener('resize', syncPieceBackground);
 
 captchaSlider.addEventListener('input', () => {
-    puzzlePiece.style.left = captchaSlider.value + '%';
+    setPiecePosition(Number(captchaSlider.value));
 });
 
 function checkCaptcha() {
@@ -191,7 +235,7 @@ function checkCaptcha() {
 
     if (diff <= CAPTCHA_TOLERANCE) {
     captchaSolved = true;
-    puzzlePiece.style.left = CAPTCHA_TARGET + '%';
+    setPiecePosition(CAPTCHA_TARGET);
     captchaMessage.textContent = "Доступ разрешён. Подтверждено: лучшая подруга ✅";
     captchaMessage.className = "captcha-message success";
     captchaSlider.disabled = true;
@@ -203,7 +247,7 @@ function checkCaptcha() {
     // возвращаем кусочек в начало, чтобы попробовать снова
     setTimeout(() => {
         captchaSlider.value = 0;
-        puzzlePiece.style.left = '0%';
+        setPiecePosition(0);
     }, 700);
     }
 }
@@ -643,8 +687,15 @@ function fireConfettiBurst() {
 
 
 function spawnCrawlPhotos() {
-    spawnPhotoColumn(document.getElementById('crawlPhotosLeft'), MEMORY_PHOTOS_LEFT);
-    spawnPhotoColumn(document.getElementById('crawlPhotosRight'), MEMORY_PHOTOS_RIGHT);
+    // делим каждый массив пополам между двумя колонками с одной стороны,
+    // чтобы получилось несколько фото "в ряд" вместо одной колонки
+    const leftHalf = Math.ceil(MEMORY_PHOTOS_LEFT.length / 2);
+    const rightHalf = Math.ceil(MEMORY_PHOTOS_RIGHT.length / 2);
+
+    spawnPhotoColumn(document.getElementById('crawlPhotosLeft1'), MEMORY_PHOTOS_LEFT.slice(0, leftHalf));
+    spawnPhotoColumn(document.getElementById('crawlPhotosLeft2'), MEMORY_PHOTOS_LEFT.slice(leftHalf));
+    spawnPhotoColumn(document.getElementById('crawlPhotosRight1'), MEMORY_PHOTOS_RIGHT.slice(0, rightHalf));
+    spawnPhotoColumn(document.getElementById('crawlPhotosRight2'), MEMORY_PHOTOS_RIGHT.slice(rightHalf));
 }
 
 function spawnPhotoColumn(container, photos) {

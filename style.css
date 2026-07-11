@@ -192,24 +192,21 @@ h1 {
     height: 52px;
     border: 3px dashed var(--rose-deep);
     border-radius: 10px;
-    background: rgba(255,255,255,0.35);
+    box-shadow: inset 0 0 0 999px rgba(255,255,255,0.35);
+    background-repeat: no-repeat;
     }
 
 .puzzle-piece {
     position: absolute;
     top: 50%;
-    left: 0%;
-    transform: translate(-50%, -50%);
+    left: 26px; /* стартовая позиция; точнее выставляется через JS */
+    transform: translateY(-50%);
     width: 52px;
     height: 52px;
     border-radius: 10px;
-    background: var(--rose-main);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    border: 2px solid var(--white);
+    background-repeat: no-repeat;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
     transition: left 0.05s linear;
 }
 
@@ -292,8 +289,10 @@ h1 {
     margin-left: -16px;
     margin-top: -16px;
     border-radius: 50%;
-    background: repeating-linear-gradient(45deg, var(--rose-light), var(--rose-light) 6px, var(--rose-pale) 6px, var(--rose-pale) 12px);
-    border: 2px dashed var(--rose-mid);
+    background-image: url('assets/friend-avatar.jpg');
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--rose-mid);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -971,6 +970,52 @@ h1 {
     z-index: 10;
 }
 
+.starfield {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+    radial-gradient(1.6px 1.6px at 20px 30px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 90px 120px, #fff, transparent),
+    radial-gradient(1px 1px at 150px 45px, #fff, transparent),
+    radial-gradient(2px 2px at 60px 200px, #fff, transparent),
+    radial-gradient(1px 1px at 200px 170px, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 250px 60px, #fff, transparent),
+    radial-gradient(1px 1px at 10px 260px, #fff, transparent),
+    radial-gradient(1.8px 1.8px at 280px 220px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 280px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 300px 100px, #fff, transparent);
+    background-repeat: repeat;
+    background-size: 320px 320px;
+    animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+.starfield::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+    radial-gradient(1px 1px at 40px 80px, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 170px 20px, #fff, transparent),
+    radial-gradient(1px 1px at 220px 140px, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 70px 250px, #fff, transparent),
+    radial-gradient(1px 1px at 310px 190px, #fff, transparent);
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    background-position: 60px 40px;
+    animation: twinkle 3s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes twinkle {
+    0%   { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .starfield, .starfield::after { animation: none; opacity: 0.8; }
+}
+
 .crawl-fade-top {
     position: absolute;
     top: 0; left: 0; right: 0;
@@ -981,6 +1026,8 @@ h1 {
 }
 
 .crawl-perspective {
+    position: relative;
+    z-index: 3;
     width: 100%;
     height: 100%;
     perspective: 900px;
@@ -1046,7 +1093,8 @@ h1 {
 }
 
 .certificate {
-    width: 280px;
+    width: 380px;
+    max-width: 90vw;
     cursor: pointer;
     margin: 0 auto;
     transition: transform 0.3s ease;
@@ -1094,27 +1142,30 @@ h1 {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 180px;
+    width: 220px;
     overflow: hidden;
     z-index: 1;
     pointer-events: none;
 }
-.crawl-photos-left { left: 0; }
-.crawl-photos-right { right: 0; }
+.crawl-photos-left-1  { left: 0; }
+.crawl-photos-left-2  { left: 210px; }
+.crawl-photos-right-1 { right: 210px; }
+.crawl-photos-right-2 { right: 0; }
 
 .crawl-photo {
     position: absolute;
     left: 50%;
-    width: 140px;
-    border-radius: 10px;
-    border: 3px solid var(--gold);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    width: 190px;
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
     animation-name: crawlPhotoFloat;
     animation-timing-function: linear;
-    animation-fill-mode: forwards;
+    animation-fill-mode: both;
 }
-.crawl-photos-left .crawl-photo  { transform: translateX(-50%) rotate(-8deg); }
-.crawl-photos-right .crawl-photo { transform: translateX(-50%) rotate(8deg); }
+.crawl-photos-left-1  .crawl-photo { transform: translateX(-50%) rotate(-10deg); }
+.crawl-photos-left-2  .crawl-photo { transform: translateX(-50%) rotate(-5deg); }
+.crawl-photos-right-1 .crawl-photo { transform: translateX(-50%) rotate(5deg); }
+.crawl-photos-right-2 .crawl-photo { transform: translateX(-50%) rotate(10deg); }
 
 @keyframes crawlPhotoFloat {
     0%   { top: 115%; opacity: 0; }
@@ -1123,9 +1174,11 @@ h1 {
     100% { top: -45%; opacity: 0; }
 }
 
-@media (max-width: 700px) {
-    .crawl-photos { width: 90px; }
-    .crawl-photo { width: 74px; }
+@media (max-width: 900px) {
+    /* на узких экранах оставляем только внешние колонки, чтобы не перекрывать текст */
+    .crawl-photos-left-2, .crawl-photos-right-2 { display: none; }
+    .crawl-photos { width: 130px; }
+    .crawl-photo { width: 110px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1155,8 +1208,9 @@ h1 {
 
 .certificate-photo {
     width: 100%;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
+    aspect-ratio: 1170 / 830; /* точные пропорции certificate.jpg — без обрезки */
+    object-fit: contain;
+    background: #fff;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(201, 24, 74, 0.35);
     display: block;
